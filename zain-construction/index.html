@@ -135,6 +135,12 @@ var MODULES = {
   product: {t:'Product Details', i:'A few questions about your product and where it is sold.', after:1}
 };
 
+/* ================= INDUSTRY MODULE =================
+   Filled per client at generation time from
+   industry-question-library.md (same folder as the master).
+   Questions use s:'i' and ids i1, i2, ... Leave empty for none. */
+var INDUSTRY = {t:'', i:'', q:[]};
+
 /* ================= QUESTIONS =================
    k: text | area | radio | check   ·   other:true adds the
    "If other, please describe" field   ·   o entries may carry
@@ -229,17 +235,18 @@ var isTemplate = CONFIG.clientName.indexOf('[') !== -1;
 if (isTemplate) document.getElementById('ribbon').style.display = 'block';
 
 var mod = MODULES[CONFIG.module];
-var active = QUESTIONS.filter(function(q){
+var active = QUESTIONS.concat(INDUSTRY.q).filter(function(q){
   if (CONFIG.skip.indexOf(q.id) !== -1) return false;
   if (q.mod && q.mod !== CONFIG.module) return false;
   return true;
 });
 
-/* section order: insert module section after SECTIONS[mod.after] */
+/* section order: business-type module, then industry module, after SECTIONS[1] */
 var secOrder = [];
 SECTIONS.forEach(function(s, k){
   secOrder.push({key:k, t:s.t, i:s.i});
   if (mod && mod.after === k) secOrder.push({key:'m', t:mod.t, i:mod.i});
+  if (k === 1 && INDUSTRY.q.length) secOrder.push({key:'i', t:INDUSTRY.t, i:INDUSTRY.i});
 });
 secOrder = secOrder.filter(function(s){ return active.some(function(q){ return q.s === s.key; }); });
 

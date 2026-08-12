@@ -27,6 +27,7 @@
   h1,h2{font-family:"Source Serif 4",serif;font-weight:600;letter-spacing:-.01em;font-size:clamp(27px,5.4vw,38px);line-height:1.22}
   h1{font-weight:700}
   .hint{margin-top:12px;color:var(--muted);font-size:16px;line-height:1.6}
+  .hint .em{color:var(--accent);font-weight:600}
   .cover p{margin-top:18px;font-size:17.5px;color:var(--ink);line-height:1.75;max-width:54ch;font-family:"Source Serif 4",serif}
   input[type=text],textarea{
     width:100%;margin-top:30px;font:inherit;font-size:17px;padding:10px 2px;color:var(--ink);
@@ -45,10 +46,21 @@
   .choice input:checked{background:var(--accent);border-color:var(--accent)}
   .choice input:checked::after{content:"";width:7px;height:7px;background:#fff}
   .choice input[type=radio]:checked::after{border-radius:50%}
-  .other-field,.follow{display:none;margin-top:18px}
+  .other-field,.follow{display:none;margin:-2px 0 4px;padding-left:49px}
   .other-field.show,.follow.show{display:block}
   .other-field label,.follow label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
   .other-field input,.follow input{margin-top:2px}
+  .hours-grid{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+  .hours-row{display:grid;grid-template-columns:104px 1fr 22px 1fr;gap:10px;align-items:center}
+  .hours-row .day{font-weight:600;font-size:15px}
+  .hours-row .to{color:var(--muted);font-size:13px;text-align:center}
+  .hours-row select{font:inherit;font-size:15px;padding:10px 8px;border:1px solid var(--rule);background:#fffdf8;color:var(--ink);border-radius:0;width:100%}
+  .hours-row select:focus{outline:none;border-color:var(--accent)}
+  .hours-row select:disabled{opacity:.4}
+  .price-rows{margin-top:26px;display:flex;flex-direction:column;gap:18px}
+  .price-row label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
+  .price-row input{margin-top:2px}
+  .price-note{margin-top:26px;color:var(--muted);font-size:15.5px;line-height:1.6}
   input.list-item{margin-top:16px}
   input.list-item:first-of-type{margin-top:30px}
   .send-note{margin-top:22px;font-size:14px;color:var(--muted);line-height:1.55;display:none}
@@ -64,6 +76,9 @@
     main{padding:32px 18px 140px}
     .brand-tail{display:none}
     .meta b{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+    .hours-row{grid-template-columns:88px 1fr 16px 1fr;gap:6px}
+    .hours-row select{padding:9px 4px;font-size:13.5px}
+    .hours-row .day{font-size:13.5px}
   }
 </style>
 </head>
@@ -97,7 +112,7 @@ var CONFIG = {
   subject: 'The Oat Milk Co questionnaire answers',
   module: 'product',
   skip: [],                      /* e.g. ['q2','q3'] */
-  prefill: {q1:'Esha Ismail, The Oat Milk Co'},
+  prefill: {q1a:'Esha Ismail', q1b:'The Oat Milk Co'},                   /* e.g. {q1:'Shah Khan, NDA Detailing'} */
   emailUser: 'm.fahad.ishtiaq',
   emailDomain: 'gmail.com'
 };
@@ -120,29 +135,41 @@ var MODULES = {
   product: {t:'Product Details', i:'A few questions about your product and where it is sold.', after:1}
 };
 
+/* ================= INDUSTRY MODULE =================
+   Filled per client at generation time from
+   industry-question-library.md (same folder as the master).
+   Questions use s:'i' and ids i1, i2, ... Leave empty for none. */
+var INDUSTRY = {t:'', i:'', q:[]};
+
 /* ================= QUESTIONS =================
    k: text | area | radio | check   ·   other:true adds the
    "If other, please describe" field   ·   o entries may carry
    link:'label' to reveal a link field when selected. */
 var QUESTIONS = [
-  {id:'q1', s:0, t:'What is your full name, and what is the exact registered name of your business?', k:'text'},
-  {id:'q2', s:0, t:'Which phone number and email address should customers use to reach you?', h:'These will appear on your website.', k:'text'},
-  {id:'q3', s:0, t:'What is your business address, and what are your hours of operation for each day of the week?', k:'area'},
-  {id:'q4', s:0, t:'How would you describe what your business does?', h:'Please answer in one or two sentences, as if you were explaining it to a new customer.', k:'area'},
+  {id:'q1a', s:0, t:"What is the owner's full name?", k:'text'},
+  {id:'q1b', s:0, t:'What is the registered name of your business?', h:'This is the name that appears on your business registration or invoices.', k:'text'},
+  {id:'q2a', s:0, t:'Which phone number should customers use to reach you?', h:'This will appear on your website.', k:'text'},
+  {id:'q2b', s:0, t:'Which email address does your business currently use?', h:'Your website can use this email, or we can set up a professional address on your own domain, for example <span class="em">info@yourbusiness.com</span>. We will discuss the best option with you.', hHtml:true, k:'text'},
+  {id:'q3a', s:0, t:'Does your business have a location that customers can visit, such as a shop, office, or showroom?', h:'Please select one.', k:'radio', o:[{l:'Yes', link:'Please provide the full address, including any unit number'},{l:'No', link:'Please tell us the city or area where your business is based'}]},
+  {id:'q3b', s:0, t:'What are your hours of operation?', h:'Please adjust the times for each day. Select Closed for the days you do not work.', k:'hours'},
+  {id:'q4a', s:0, t:'How would you describe what your business does?', h:'Please answer in one or two sentences, as if you were explaining it to a new customer.', k:'area'},
+  {id:'q4b', s:0, t:'Who works in the business?', h:'Please tell us how many people are involved and who does what. If you run the business on your own, simply let us know.', k:'area'},
 
   {id:'q5', s:1, t:'Please provide a list of the services your business offers.', h:'Pro tip: order the list from most popular to least popular.', k:'area'},
-  {id:'q6', s:1, t:'What is the price of each service?', h:'For each price, please indicate whether it is a fixed price or a starting price, for example "from $50".', k:'area'},
-  {id:'q7', s:1, t:'Which of your services earns you the most profit, and which would you like to sell more of?', k:'area'},
-  {id:'q8', s:1, t:'Are there any jobs or requests that you prefer not to take on?', h:'If so, please describe them.', k:'area'},
+  {id:'q6', s:1, t:'What is the price of each service?', h:'Your services from the previous question are listed below, each with its own price field. Please indicate whether each price is fixed or starting, for example "from $50".', k:'prices'},
+  {id:'q7a', s:1, t:'Which of your services is your highest earning and most profitable?', k:'area'},
+  {id:'q7b', s:1, t:'Which of your services would you like to sell more of?', k:'area'},
+  {id:'q8', s:1, t:'Are there any jobs or requests that you do not accept?', h:'If so, please describe them.', k:'area'},
   {id:'q9', s:1, t:'Do you offer any packages?', h:'A package combines two or more services at a single price, for example an interior and exterior detail sold together. If you do, please list each package and its price.', k:'area'},
   {id:'q10a', s:1, t:'Which payment methods do you accept?', h:'Please select all that apply.', k:'check', o:[{l:'Cash'},{l:'Credit or debit card'},{l:'E-transfer'}], other:true},
   {id:'q10b', s:1, t:'Do you require a deposit? (If yes, please specify for which kinds of jobs.)', k:'radio', o:[{l:'Yes', link:'Please specify for which kinds of jobs'},{l:'No'}]},
   {id:'q11', s:1, t:'How would you like pricing to be displayed on your website?', h:'Please select one.', k:'radio', o:[{l:'A full price list'},{l:'Starting prices, for example "from $50"'},{l:'No prices; customers request a quote'}]},
 
-  {id:'s1', s:'m', t:'What area do you serve, and are there any locations you do not travel to?', k:'area', mod:'service'},
-  {id:'s2', s:'m', t:'Where does the work take place?', h:'Please select one.', k:'radio', o:[{l:"At the customer's location"},{l:'Customers come to me'},{l:'Both'}], mod:'service'},
-  {id:'s3', s:'m', t:'Which days and hours are you available for bookings?', k:'text', mod:'service'},
-  {id:'s4', s:'m', t:'How should customers book with you?', h:'Please select one.', k:'radio', o:[{l:'Call or message'},{l:'Book online and pay later'},{l:'Book and pay online'}], mod:'service'},
+  {id:'s2', s:'m', t:'Where do you provide your services?', h:'Please select one.', k:'radio', o:[{l:"At the customer's location", link:'Which areas do you serve? Please note any locations you do not travel to.'},{l:'Customers visit our location'},{l:'Both', link:'Which areas do you serve? Please note any locations you do not travel to.'}], mod:'service'},
+  {id:'s4', s:'m', t:'What is your preferred method for client bookings?', h:'Please select one.', k:'radio', o:[{l:'By phone call or message'},{l:'Online booking, with payment made after the service'},{l:'Online booking, with payment made at the time of booking'}], mod:'service'},
+  {id:'s5', s:'m', t:'Who are your services primarily intended for?', h:'Please select one.', k:'radio', o:[{l:'Homeowners and other residential customers'},{l:'Businesses and other commercial customers'},{l:'Both residential and commercial customers'}], mod:'service'},
+  {id:'s6a', s:'m', t:'Which licences, insurance coverage, and certifications does your business hold?', h:'Examples include a trade licence, liability insurance, and workplace safety coverage. Please list everything; these are often the first things customers look for.', k:'area', mod:'service'},
+  {id:'s6b', s:'m', t:'Do you offer a warranty or guarantee on your work?', k:'radio', o:[{l:'Yes', link:'Please describe the warranty or guarantee'},{l:'No'}], mod:'service'},
 
   {id:'p1', s:'m', t:'Where can customers buy your product today?', h:'Please select all that apply.', k:'check', o:[{l:'Retail stores'},{l:'Our own online store'},{l:"Farmers' markets or pop-ups"},{l:'Cafés or restaurants'}], other:true, mod:'product'},
   {id:'p2', s:'m', t:'Which stores or cafés currently stock your product, and which would you like to see stock it in the future?', k:'area', mod:'product'},
@@ -156,9 +183,8 @@ var QUESTIONS = [
   {id:'q15', s:2, t:'What do customers worry about before choosing a business like yours?', k:'area'},
   {id:'q16', s:2, t:'Are the customers you would like to attract different from the customers you have today?', h:'If yes, please explain how they are different.', k:'area'},
 
-  {id:'q17', s:3, t:'Please describe the new customers you would like to reach.', h:'Think of the people who would value your work but do not yet know your business exists.', k:'area'},
-  {id:'q18', s:3, t:'Where do these customers usually search when they need a business like yours?', h:'Please select all that apply.', k:'check', o:[{l:'Google'},{l:'Instagram'},{l:'TikTok'},{l:'Facebook'},{l:'LinkedIn'},{l:'Word of mouth'}], other:true},
-  {id:'q19a', s:3, t:'Which of the following does your business currently have online?', h:'Please select all that apply. For each one you select, a field will appear so you can share the link with us.', k:'check', o:[
+  {id:'q18', s:3, t:'Where do your customers usually search when they need a business like yours?', h:'Please select all that apply.', k:'check', o:[{l:'Google'},{l:'Instagram'},{l:'TikTok'},{l:'Facebook'},{l:'LinkedIn'},{l:'Word of mouth'}], other:true},
+  {id:'q19a', s:3, t:'Which of the following forms of online presence does your business currently have?', h:'Please select all that apply. For each one you select, a field will appear so you can share the link with us.', k:'check', o:[
     {l:'Website', link:'Please provide us with the link to your website'},
     {l:'A previous or older website', link:'Please provide us with the link to the previous website'},
     {l:'Domain name', link:'Please provide us with the domain'},
@@ -168,38 +194,39 @@ var QUESTIONS = [
     {l:'TikTok', link:'Please provide us with the TikTok link, or your handle'},
     {l:'YouTube', link:'Please provide us with the YouTube channel link'},
     {l:'LinkedIn', link:'Please provide us with the LinkedIn page link'},
-    {l:'Email list'},
-    {l:'Online reviews', link:'Please provide us with a link to where your reviews can be read'}
+    {l:'Email list'}
   ]},
-  {id:'q19b', s:3, t:'If you have online reviews, please tell us where they are posted and roughly how many you have.', k:'area'},
-  {id:'q20', s:3, t:'What is the single most important job your website should do for your business?', h:'Please select one.', k:'radio', o:[{l:'Bring in bookings'},{l:'Bring in quote requests'},{l:'Sell products online'},{l:'Build trust and credibility'},{l:'Showcase your work'}]},
-  {id:'q21', s:3, t:'Two years from now, how much of your business would you like to come from new customers who found you online?', h:'Please select one.', k:'radio', o:[{l:'Most of it'},{l:'About half'},{l:'A small portion'},{l:'I am not sure yet'}]},
+  {id:'q19b', s:3, t:'Do you have Google reviews?', h:'Please select one.', k:'radio', o:[{l:'Yes', link:'Please provide us with the link to your Google reviews'},{l:'No'}]},
+  {id:'q19c', s:3, t:'Are your reviews posted anywhere else, such as HomeStars, Yelp, or Facebook?', h:'If so, please provide the links.', k:'area'},
+  {id:'q20', s:3, t:'What is the primary goal you would like your website to achieve?', h:'Please select one.', k:'radio', o:[{l:'Generate bookings'},{l:'Generate quote requests'},{l:'Sell products online'},{l:'Build trust and credibility'},{l:'Showcase our work'}]},
+  {id:'q21', s:3, t:'Two years from now, what portion of your business would you like to come from customers who found you online?', h:'Please select one.', k:'radio', o:[{l:'Most of it'},{l:'About half'},{l:'A small portion'},{l:'I am not sure yet'}]},
 
   {id:'q22', s:4, t:'Which other businesses do your customers compare you to?', h:'Please provide their names.', k:'area'},
   {id:'q23', s:4, t:'What does your industry usually get wrong in how it treats customers?', k:'area'},
   {id:'q24', s:4, t:'What can you say about your business that no competitor can truthfully say?', k:'area'},
 
-  {id:'q25', s:5, t:'Which of the following commitments can your business keep every single time, without exception?', h:'Please select all that apply.', k:'check', o:[{l:'Quoted turnaround times'},{l:'Showing the customer a proof before production'},{l:'A satisfaction guarantee'},{l:'Rush or same-day service'}], other:true},
-  {id:'q26', s:5, t:'Please share any facts about your business that we can publish.', h:'For example the year it was founded, your years of experience, or the number of jobs you complete in a typical week.', k:'area'},
+  {id:'q25', s:5, t:'Which of the following promises can your business always keep?', h:'Please select all that apply. We will only publish promises you are certain you can keep every single time.', k:'check', o:[{l:'Quoted turnaround times'},{l:'Showing the customer a proof before production'},{l:'A satisfaction guarantee'},{l:'Rush or same-day service'}], other:true},
+  {id:'q26', s:5, t:'Please share any facts about your business that we can publish.', h:'For example, the year your business was founded, your years of experience, the number of jobs completed in a typical week or year, the number of customers you have served, or any awards and recognition.', k:'area'},
 
-  {id:'q27', s:6, t:'How did your business begin?', h:'We would love to hear the real story rather than the polished version.', k:'area'},
+  {id:'q27', s:6, t:'How did your business begin?', h:'Your story helps customers connect with your business, and we would like to tell it well. Please share how it all started.', k:'area'},
   {id:'q28', s:6, t:'Why did you choose this line of work, and what were you doing before you started this business?', k:'area'},
   {id:'q29', s:6, t:'What has been your proudest moment since starting the business?', k:'area'},
-  {id:'q30', s:6, t:'What is your personal standard of work?', h:'Please tell us what you refuse to compromise on.', k:'area'},
+  {id:'q30', s:6, t:'What do you always make sure of in every job?', h:'Please tell us the standards you never compromise on.', k:'area'},
 
-  {id:'q31', s:7, t:'Which three words best describe your business?', h:'If you had to give one of the three up, which one would it be?', k:'text'},
-  {id:'q32', s:7, t:'How should your brand never feel to a customer?', h:'Examples include corporate, cheap, or pushy.', k:'text'},
+  {id:'q31', s:7, t:'Which three words best describe your business?', h:'Please choose words that describe the character of your business rather than the services you offer.', k:'text'},
+  {id:'q31b', s:7, t:'What impression would you like your brand to leave on customers?', h:'For example, dependable, premium, friendly, or precise.', k:'text'},
+  {id:'q32', s:7, t:'Are there any impressions you would never want your brand to give?', h:'For example, corporate, cheap, or pushy.', k:'text'},
   {id:'q33', s:7, t:'Please name a business you admire from any industry, and tell us what you like about the way it presents itself.', k:'area'},
   {id:'q34a', s:7, t:'Are there any colours or symbols we should avoid using in your brand?', k:'text'},
   {id:'q34b', s:7, t:'Do you have any existing brand materials that must be kept, such as a logo, a sign, or packaging?', k:'area'},
   {id:'q35', s:7, t:'Apart from yourself, does anyone else need to approve decisions about the brand or the website?', k:'text'},
 
   {id:'q36', s:8, t:'What are the five questions customers ask you most often?', h:'Please write each one the way a customer would actually ask it. Try to fill all five; if one will not come to mind, it often arrives while you answer the others.', k:'list5'},
-  {id:'q37', s:8, t:'What do new customers most often misunderstand or not know?', k:'area'},
+  {id:'q37', s:8, t:'What do new customers most often misunderstand about your services or your industry?', k:'area'},
 
-  {id:'q38a', s:9, t:'Please share all of the photos and videos you have of your work and your business.', h:'Send everything as it is; there is no need to sort or label anything. In this field, simply tell us what you have, and we will arrange the easiest way for you to send it.', k:'area'},
+  {id:'q38a', s:9, t:'Please share all of the photos and videos you have of your work and your business.', h:'In this field, simply tell us what you have. After you send your answers, we will provide you with a private upload link where you can send everything directly from your phone or computer. There is no need to sort or label anything.', k:'area'},
   {id:'q38b', s:9, t:'Would you be open to a professional photo or video shoot at your business?', k:'radio', o:[{l:'Yes'},{l:'No'},{l:'I would like to discuss it first'}]},
-  {id:'q39', s:9, t:'Do you have a logo or any design files?', h:'If so, please tell us who created them and whether you can request the original design file (AI, EPS, PDF, or SVG format).', k:'area'},
+  {id:'q39', s:9, t:'Do you have a logo or any design files?', h:'If so, please tell us who created them and what file types you have, for example AI, EPS, PDF, or SVG. You will be able to send the files through the same upload link as your photos.', k:'area'},
   {id:'q40', s:9, t:'What is the one thing we have not asked about that you think we should know?', k:'area'}
 ];
 
@@ -208,17 +235,18 @@ var isTemplate = CONFIG.clientName.indexOf('[') !== -1;
 if (isTemplate) document.getElementById('ribbon').style.display = 'block';
 
 var mod = MODULES[CONFIG.module];
-var active = QUESTIONS.filter(function(q){
+var active = QUESTIONS.concat(INDUSTRY.q).filter(function(q){
   if (CONFIG.skip.indexOf(q.id) !== -1) return false;
   if (q.mod && q.mod !== CONFIG.module) return false;
   return true;
 });
 
-/* section order: insert module section after SECTIONS[mod.after] */
+/* section order: business-type module, then industry module, after SECTIONS[1] */
 var secOrder = [];
 SECTIONS.forEach(function(s, k){
   secOrder.push({key:k, t:s.t, i:s.i});
   if (mod && mod.after === k) secOrder.push({key:'m', t:mod.t, i:mod.i});
+  if (k === 1 && INDUSTRY.q.length) secOrder.push({key:'i', t:INDUSTRY.t, i:INDUSTRY.i});
 });
 secOrder = secOrder.filter(function(s){ return active.some(function(q){ return q.s === s.key; }); });
 
@@ -246,7 +274,7 @@ secOrder.forEach(function(sec, si){
     var s = el('<div class="kicker">Question ' + qNo + ' of ' + total + '</div><h2></h2>' + (q.h ? '<p class="hint"></p>' : ''));
     s.dataset.sec = sec.t; s.dataset.qid = q.id; s.dataset.qno = qNo;
     s.querySelector('h2').textContent = q.t;
-    if (q.h) s.querySelector('.hint').textContent = q.h;
+    if (q.h){ var hn = s.querySelector('.hint'); if (q.hHtml) hn.innerHTML = q.h; else hn.textContent = q.h; }
 
     if (q.k === 'text' || q.k === 'area'){
       var f = document.createElement(q.k === 'text' ? 'input' : 'textarea');
@@ -254,6 +282,34 @@ secOrder.forEach(function(sec, si){
       f.placeholder = 'Your answer'; f.dataset.ans = q.id;
       if (CONFIG.prefill[q.id]) f.value = CONFIG.prefill[q.id];
       s.appendChild(f);
+    } else if (q.k === 'hours'){
+      /* Monday to Sunday rows with adjustable open/close times (Fahad, 2026-08-12) */
+      var days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      var times = [];
+      for (var hh = 6; hh <= 22; hh++){
+        var h12 = ((hh + 11) % 12) + 1, ap = hh < 12 ? 'AM' : 'PM';
+        times.push(h12 + ':00 ' + ap);
+        if (hh < 22) times.push(h12 + ':30 ' + ap);
+      }
+      var grid = document.createElement('div'); grid.className = 'hours-grid';
+      days.forEach(function(day){
+        var row = document.createElement('div'); row.className = 'hours-row';
+        var dl = document.createElement('span'); dl.className = 'day'; dl.textContent = day;
+        var so = document.createElement('select'); so.dataset.ansHours = q.id + '||' + day + '||open';
+        ['Closed'].concat(times).forEach(function(tv){ var o1 = document.createElement('option'); o1.value = tv; o1.textContent = tv; so.appendChild(o1); });
+        var to = document.createElement('span'); to.className = 'to'; to.textContent = 'to';
+        var sc = document.createElement('select'); sc.dataset.ansHours = q.id + '||' + day + '||close';
+        times.forEach(function(tv){ var o2 = document.createElement('option'); o2.value = tv; o2.textContent = tv; sc.appendChild(o2); });
+        /* all days preset open so it is clear every time can be changed (Fahad, 2026-08-12) */
+        so.value = '9:00 AM'; sc.value = '5:00 PM';
+        row.appendChild(dl); row.appendChild(so); row.appendChild(to); row.appendChild(sc);
+        grid.appendChild(row);
+      });
+      s.appendChild(grid);
+    } else if (q.k === 'prices'){
+      /* one price field per service from q5, built when the step opens (Fahad, 2026-08-12) */
+      var pw = document.createElement('div'); pw.className = 'price-rows'; pw.dataset.source = 'q5'; pw.dataset.priceId = q.id;
+      s.appendChild(pw);
     } else if (q.k === 'list5'){
       for (var n = 1; n <= 5; n++){
         var li = document.createElement('input'); li.type = 'text';
@@ -270,6 +326,14 @@ secOrder.forEach(function(sec, si){
         if (opt.link) inp.dataset.follow = q.id + '-f' + oi;
         lab.appendChild(inp); lab.appendChild(document.createTextNode(opt.l));
         wrap.appendChild(lab);
+        /* reveal field opens directly beneath its own option (Fahad, 2026-08-12) */
+        if (opt.link){
+          var fw = document.createElement('div'); fw.className = 'follow'; fw.id = q.id + '-f' + oi;
+          var fl = document.createElement('label'); fl.textContent = opt.link;
+          var fi = document.createElement('input'); fi.type = 'text'; fi.placeholder = 'Your answer';
+          fi.dataset.ansLink = q.id + '||' + opt.l;
+          fw.appendChild(fl); fw.appendChild(fi); wrap.appendChild(fw);
+        }
       });
       if (q.other){
         var lab2 = document.createElement('label'); lab2.className = 'choice';
@@ -277,22 +341,12 @@ secOrder.forEach(function(sec, si){
         inp2.className = 'other-toggle';
         lab2.appendChild(inp2); lab2.appendChild(document.createTextNode('Other'));
         wrap.appendChild(lab2);
-      }
-      s.appendChild(wrap);
-      q.o.forEach(function(opt, oi){
-        if (!opt.link) return;
-        var fw = document.createElement('div'); fw.className = 'follow'; fw.id = q.id + '-f' + oi;
-        var fl = document.createElement('label'); fl.textContent = opt.link;
-        var fi = document.createElement('input'); fi.type = 'text'; fi.placeholder = 'Your answer';
-        fi.dataset.ansLink = q.id + '||' + opt.l;
-        fw.appendChild(fl); fw.appendChild(fi); s.appendChild(fw);
-      });
-      if (q.other){
         var ow = document.createElement('div'); ow.className = 'other-field';
         ow.innerHTML = '<label>If other, please describe</label><input type="text" placeholder="Your answer">';
         ow.querySelector('input').dataset.ansOther = q.id;
-        s.appendChild(ow);
+        wrap.appendChild(ow);
       }
+      s.appendChild(wrap);
     }
     main.appendChild(s);
   });
@@ -311,8 +365,32 @@ var steps = [].slice.call(document.querySelectorAll('.step')), i = 0;
 var back = document.getElementById('back'), next = document.getElementById('next'),
     fill = document.getElementById('fill'), secname = document.getElementById('secname'), pct = document.getElementById('pct');
 
+function buildPrices(step){
+  var pw = step.querySelector('.price-rows'); if (!pw) return;
+  var src = document.querySelector('[data-ans="' + pw.dataset.source + '"]');
+  var items = src && src.value ? src.value.split('\n').map(function(x){ return x.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim(); }).filter(Boolean) : [];
+  var prev = {};
+  [].slice.call(pw.querySelectorAll('input[data-ans-price]')).forEach(function(inp){ prev[inp.dataset.ansPrice] = inp.value; });
+  pw.innerHTML = '';
+  if (!items.length){
+    var note = document.createElement('p'); note.className = 'price-note';
+    note.textContent = 'Once you list your services in the previous question, each one will appear here with its own price field. You can press Back to add them.';
+    pw.appendChild(note); return;
+  }
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch(e){}
+  items.forEach(function(name){
+    var row = document.createElement('div'); row.className = 'price-row';
+    var lb = document.createElement('label'); lb.textContent = name;
+    var inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'For example $150, or from $100';
+    inp.dataset.ansPrice = pw.dataset.priceId + '||' + name;
+    inp.value = prev[inp.dataset.ansPrice] || saved['P:' + inp.dataset.ansPrice] || '';
+    row.appendChild(lb); row.appendChild(inp); pw.appendChild(row);
+  });
+}
 function render(){
   steps.forEach(function(s, k){ s.classList.toggle('active', k === i); });
+  buildPrices(steps[i]);
   back.disabled = i === 0;
   next.textContent = i === 0 ? 'Start' : (i === steps.length - 1 ? 'Send Your Answers' : 'Next');
   var p = Math.round(i / (steps.length - 1) * 100);
@@ -325,6 +403,10 @@ next.onclick = function(){ if (i === steps.length - 1) { submit(); return; } i++
 back.onclick = function(){ if (i > 0){ i--; render(); } };
 
 document.addEventListener('change', function(e){
+  if (e.target.dataset && e.target.dataset.ansHours && e.target.dataset.ansHours.slice(-6) === '||open'){
+    var closeSel = e.target.closest('.hours-row').querySelector('select[data-ans-hours$="close"]');
+    if (closeSel) closeSel.disabled = e.target.value === 'Closed';
+  }
   var c = e.target.closest('.choice');
   if (c){
     if (e.target.type === 'radio') c.parentElement.querySelectorAll('.choice').forEach(function(x){ x.classList.remove('picked'); });
@@ -361,6 +443,18 @@ function collect(){
     [].slice.call(s.querySelectorAll('[data-ans-multi]')).forEach(function(inp){
       if (inp.value.trim()) parts.push(inp.dataset.ansMulti.split('||')[1] + ') ' + inp.value.trim());
     });
+    [].slice.call(s.querySelectorAll('[data-ans-price]')).forEach(function(inp){
+      if (inp.value.trim()) parts.push(inp.dataset.ansPrice.split('||')[1] + ': ' + inp.value.trim());
+    });
+    var hsels = [].slice.call(s.querySelectorAll('select[data-ans-hours]'));
+    if (hsels.length){
+      var byDay = {};
+      hsels.forEach(function(sel){ var p = sel.dataset.ansHours.split('||'); byDay[p[1]] = byDay[p[1]] || {}; byDay[p[1]][p[2]] = sel.value; });
+      ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].forEach(function(d){
+        if (!byDay[d]) return;
+        parts.push(d + ': ' + (byDay[d].open === 'Closed' ? 'Closed' : byDay[d].open + ' to ' + byDay[d].close));
+      });
+    }
     var follows = {};
     [].slice.call(s.querySelectorAll('[data-ans-link]')).forEach(function(inp){
       if (inp.value.trim()) follows[inp.dataset.ansLink.split('||')[1]] = inp.value.trim();
@@ -380,13 +474,15 @@ function fieldKey(f){
   if (f.dataset.ansLink) return 'l:' + f.dataset.ansLink;
   if (f.dataset.ansMulti) return 'm:' + f.dataset.ansMulti;
   if (f.dataset.ansOther) return 'o:' + f.dataset.ansOther;
+  if (f.dataset.ansPrice) return 'P:' + f.dataset.ansPrice;
+  if (f.dataset.ansHours) return 'H:' + f.dataset.ansHours;
   if (f.name) return 'c:' + f.name + '::' + f.value;
   return null;
 }
 function save(){
   try {
     var vals = {};
-    [].slice.call(document.querySelectorAll('input[type=text],textarea')).forEach(function(f){
+    [].slice.call(document.querySelectorAll('input[type=text],textarea,select')).forEach(function(f){
       var k = fieldKey(f); if (k && f.value) vals[k] = f.value;
     });
     [].slice.call(document.querySelectorAll('.choice input')).forEach(function(f){
@@ -398,8 +494,12 @@ function save(){
 function restore(){
   try {
     var vals = JSON.parse(localStorage.getItem(storeKey) || '{}');
-    [].slice.call(document.querySelectorAll('input[type=text],textarea')).forEach(function(f){
+    [].slice.call(document.querySelectorAll('input[type=text],textarea,select')).forEach(function(f){
       var k = fieldKey(f); if (k && vals[k]) f.value = vals[k];
+    });
+    [].slice.call(document.querySelectorAll('select[data-ans-hours$="open"]')).forEach(function(so){
+      var cs = so.closest('.hours-row').querySelector('select[data-ans-hours$="close"]');
+      if (cs) cs.disabled = so.value === 'Closed';
     });
     [].slice.call(document.querySelectorAll('.choice input')).forEach(function(f){
       var k = fieldKey(f);
