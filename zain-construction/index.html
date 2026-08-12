@@ -139,11 +139,11 @@ var MODULES = {
    "If other, please describe" field   ·   o entries may carry
    link:'label' to reveal a link field when selected. */
 var QUESTIONS = [
-  {id:'q1a', s:0, t:'What is your full name?', k:'text'},
+  {id:'q1a', s:0, t:"What is the owner's full name?", k:'text'},
   {id:'q1b', s:0, t:'What is the exact registered name of your business?', h:'This is the name that appears on your business registration or invoices.', k:'text'},
   {id:'q2a', s:0, t:'Which phone number should customers use to reach you?', h:'This will appear on your website.', k:'text'},
   {id:'q2b', s:0, t:'Which email address should customers use to reach you?', h:'This will appear on your website.', k:'text'},
-  {id:'q3a', s:0, t:'Does your business have a location that customers can visit, such as a shop, office, or showroom?', h:'Please select one.', k:'radio', o:[{l:'Yes', link:'Please provide the address'},{l:'No', link:'Please tell us the city or area where your business is based'}]},
+  {id:'q3a', s:0, t:'Does your business have a location that customers can visit, such as a shop, office, or showroom?', h:'Please select one.', k:'radio', o:[{l:'Yes', link:'Please provide the full address, including any unit number'},{l:'No', link:'Please tell us the city or area where your business is based'}]},
   {id:'q3b', s:0, t:'What are your hours of operation?', h:'Please adjust the times for each day. Select Closed for the days you do not work.', k:'hours'},
   {id:'q4a', s:0, t:'How would you describe what your business does?', h:'Please answer in one or two sentences, as if you were explaining it to a new customer.', k:'area'},
   {id:'q4b', s:0, t:'Who works in the business?', h:'Please tell us how many people are involved and who does what. If you run the business on your own, simply let us know.', k:'area'},
@@ -292,8 +292,8 @@ secOrder.forEach(function(sec, si){
         var to = document.createElement('span'); to.className = 'to'; to.textContent = 'to';
         var sc = document.createElement('select'); sc.dataset.ansHours = q.id + '||' + day + '||close';
         times.forEach(function(tv){ var o2 = document.createElement('option'); o2.value = tv; o2.textContent = tv; sc.appendChild(o2); });
-        var weekend = day === 'Saturday' || day === 'Sunday';
-        so.value = weekend ? 'Closed' : '9:00 AM'; sc.value = '5:00 PM'; sc.disabled = weekend;
+        /* all days preset open so it is clear every time can be changed (Fahad, 2026-08-12) */
+        so.value = '9:00 AM'; sc.value = '5:00 PM';
         row.appendChild(dl); row.appendChild(so); row.appendChild(to); row.appendChild(sc);
         grid.appendChild(row);
       });
