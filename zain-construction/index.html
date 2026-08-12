@@ -143,7 +143,6 @@ var QUESTIONS = [
 
   {id:'s1', s:'m', t:'What area do you serve, and are there any locations you do not travel to?', k:'area', mod:'service'},
   {id:'s2', s:'m', t:'Where does the work take place?', h:'Please select one.', k:'radio', o:[{l:"At the customer's location"},{l:'Customers come to me'},{l:'Both'}], mod:'service'},
-  {id:'s3', s:'m', t:'Which days and hours are you available for bookings?', k:'text', mod:'service'},
   {id:'s4', s:'m', t:'How should customers book with you?', h:'Please select one.', k:'radio', o:[{l:'Call or message'},{l:'Book online and pay later'},{l:'Book and pay online'}], mod:'service'},
   {id:'s5', s:'m', t:'Who are your services mainly for?', h:'Please select one.', k:'radio', o:[{l:'Homeowners and other residential customers'},{l:'Businesses and other commercial customers'},{l:'Both residential and commercial customers'}], mod:'service'},
   {id:'s6a', s:'m', t:'Which licences, insurance coverage, and certifications does your business hold?', h:'Examples include a trade licence, liability insurance, and workplace safety coverage. Please list everything; these are often the first things customers look for.', k:'area', mod:'service'},
@@ -161,8 +160,7 @@ var QUESTIONS = [
   {id:'q15', s:2, t:'What do customers worry about before choosing a business like yours?', k:'area'},
   {id:'q16', s:2, t:'Are the customers you would like to attract different from the customers you have today?', h:'If yes, please explain how they are different.', k:'area'},
 
-  {id:'q17', s:3, t:'Please describe the new customers you would like to reach.', h:'Think of the people who would value your work but do not yet know your business exists.', k:'area'},
-  {id:'q18', s:3, t:'Where do these customers usually search when they need a business like yours?', h:'Please select all that apply.', k:'check', o:[{l:'Google'},{l:'Instagram'},{l:'TikTok'},{l:'Facebook'},{l:'LinkedIn'},{l:'Word of mouth'}], other:true},
+  {id:'q18', s:3, t:'Where do your ideal customers usually search when they need a business like yours?', h:'Please select all that apply.', k:'check', o:[{l:'Google'},{l:'Instagram'},{l:'TikTok'},{l:'Facebook'},{l:'LinkedIn'},{l:'Word of mouth'}], other:true},
   {id:'q19a', s:3, t:'Which of the following does your business currently have online?', h:'Please select all that apply. For each one you select, a field will appear so you can share the link with us.', k:'check', o:[
     {l:'Website', link:'Please provide us with the link to your website'},
     {l:'A previous or older website', link:'Please provide us with the link to the previous website'},
@@ -176,7 +174,7 @@ var QUESTIONS = [
     {l:'Email list'},
     {l:'Online reviews', link:'Please provide us with a link to where your reviews can be read'}
   ]},
-  {id:'q19b', s:3, t:'If you have online reviews, please tell us where they are posted and roughly how many you have.', k:'area'},
+  {id:'q19b', s:3, t:'If you have online reviews, roughly how many do you have, and what is your overall rating?', k:'text'},
   {id:'q20', s:3, t:'What is the single most important job your website should do for your business?', h:'Please select one.', k:'radio', o:[{l:'Bring in bookings'},{l:'Bring in quote requests'},{l:'Sell products online'},{l:'Build trust and credibility'},{l:'Showcase your work'}]},
   {id:'q21', s:3, t:'Two years from now, how much of your business would you like to come from new customers who found you online?', h:'Please select one.', k:'radio', o:[{l:'Most of it'},{l:'About half'},{l:'A small portion'},{l:'I am not sure yet'}]},
 
