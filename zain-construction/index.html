@@ -27,6 +27,7 @@
   h1,h2{font-family:"Source Serif 4",serif;font-weight:600;letter-spacing:-.01em;font-size:clamp(27px,5.4vw,38px);line-height:1.22}
   h1{font-weight:700}
   .hint{margin-top:12px;color:var(--muted);font-size:16px;line-height:1.6}
+  .hint .em{color:var(--accent);font-weight:600}
   .cover p{margin-top:18px;font-size:17.5px;color:var(--ink);line-height:1.75;max-width:54ch;font-family:"Source Serif 4",serif}
   input[type=text],textarea{
     width:100%;margin-top:30px;font:inherit;font-size:17px;padding:10px 2px;color:var(--ink);
@@ -142,7 +143,7 @@ var QUESTIONS = [
   {id:'q1a', s:0, t:"What is the owner's full name?", k:'text'},
   {id:'q1b', s:0, t:'What is the exact registered name of your business?', h:'This is the name that appears on your business registration or invoices.', k:'text'},
   {id:'q2a', s:0, t:'Which phone number should customers use to reach you?', h:'This will appear on your website.', k:'text'},
-  {id:'q2b', s:0, t:'Which email address does your business currently use?', h:'Your website can use this email, or we can set up a professional address on your own domain, for example info@yourbusiness.com. We will discuss the best option with you.', k:'text'},
+  {id:'q2b', s:0, t:'Which email address does your business currently use?', h:'Your website can use this email, or we can set up a professional address on your own domain, for example <span class="em">info@yourbusiness.com</span>. We will discuss the best option with you.', hHtml:true, k:'text'},
   {id:'q3a', s:0, t:'Does your business have a location that customers can visit, such as a shop, office, or showroom?', h:'Please select one.', k:'radio', o:[{l:'Yes', link:'Please provide the full address, including any unit number'},{l:'No', link:'Please tell us the city or area where your business is based'}]},
   {id:'q3b', s:0, t:'What are your hours of operation?', h:'Please adjust the times for each day. Select Closed for the days you do not work.', k:'hours'},
   {id:'q4a', s:0, t:'How would you describe what your business does?', h:'Please answer in one or two sentences, as if you were explaining it to a new customer.', k:'area'},
@@ -266,7 +267,7 @@ secOrder.forEach(function(sec, si){
     var s = el('<div class="kicker">Question ' + qNo + ' of ' + total + '</div><h2></h2>' + (q.h ? '<p class="hint"></p>' : ''));
     s.dataset.sec = sec.t; s.dataset.qid = q.id; s.dataset.qno = qNo;
     s.querySelector('h2').textContent = q.t;
-    if (q.h) s.querySelector('.hint').textContent = q.h;
+    if (q.h){ var hn = s.querySelector('.hint'); if (q.hHtml) hn.innerHTML = q.h; else hn.textContent = q.h; }
 
     if (q.k === 'text' || q.k === 'area'){
       var f = document.createElement(q.k === 'text' ? 'input' : 'textarea');
