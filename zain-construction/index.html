@@ -45,7 +45,7 @@
   .choice input:checked{background:var(--accent);border-color:var(--accent)}
   .choice input:checked::after{content:"";width:7px;height:7px;background:#fff}
   .choice input[type=radio]:checked::after{border-radius:50%}
-  .other-field,.follow{display:none;margin-top:18px}
+  .other-field,.follow{display:none;margin:-2px 0 4px;padding-left:49px}
   .other-field.show,.follow.show{display:block}
   .other-field label,.follow label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
   .other-field input,.follow input{margin-top:2px}
@@ -273,6 +273,14 @@ secOrder.forEach(function(sec, si){
         if (opt.link) inp.dataset.follow = q.id + '-f' + oi;
         lab.appendChild(inp); lab.appendChild(document.createTextNode(opt.l));
         wrap.appendChild(lab);
+        /* reveal field opens directly beneath its own option (Fahad, 2026-08-12) */
+        if (opt.link){
+          var fw = document.createElement('div'); fw.className = 'follow'; fw.id = q.id + '-f' + oi;
+          var fl = document.createElement('label'); fl.textContent = opt.link;
+          var fi = document.createElement('input'); fi.type = 'text'; fi.placeholder = 'Your answer';
+          fi.dataset.ansLink = q.id + '||' + opt.l;
+          fw.appendChild(fl); fw.appendChild(fi); wrap.appendChild(fw);
+        }
       });
       if (q.other){
         var lab2 = document.createElement('label'); lab2.className = 'choice';
@@ -280,22 +288,12 @@ secOrder.forEach(function(sec, si){
         inp2.className = 'other-toggle';
         lab2.appendChild(inp2); lab2.appendChild(document.createTextNode('Other'));
         wrap.appendChild(lab2);
-      }
-      s.appendChild(wrap);
-      q.o.forEach(function(opt, oi){
-        if (!opt.link) return;
-        var fw = document.createElement('div'); fw.className = 'follow'; fw.id = q.id + '-f' + oi;
-        var fl = document.createElement('label'); fl.textContent = opt.link;
-        var fi = document.createElement('input'); fi.type = 'text'; fi.placeholder = 'Your answer';
-        fi.dataset.ansLink = q.id + '||' + opt.l;
-        fw.appendChild(fl); fw.appendChild(fi); s.appendChild(fw);
-      });
-      if (q.other){
         var ow = document.createElement('div'); ow.className = 'other-field';
         ow.innerHTML = '<label>If other, please describe</label><input type="text" placeholder="Your answer">';
         ow.querySelector('input').dataset.ansOther = q.id;
-        s.appendChild(ow);
+        wrap.appendChild(ow);
       }
+      s.appendChild(wrap);
     }
     main.appendChild(s);
   });
