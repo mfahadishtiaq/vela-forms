@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AZ Printing &amp; Signs · What You Do</title>
+<title>AZ Printing &amp; Signs · What You Offer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -63,20 +63,18 @@
   .price-note{margin-top:26px;color:var(--muted);font-size:15.5px;line-height:1.6}
   input.list-item{margin-top:16px}
   input.list-item:first-of-type{margin-top:30px}
-  .sort-rows{margin-top:24px;display:flex;flex-direction:column}
-  .srow{border-top:1px solid var(--rule);padding:15px 0}
-  .srow:last-of-type{border-bottom:1px solid var(--rule)}
-  .sfact{font-family:"Source Serif 4",serif;font-size:16.5px;line-height:1.45}
-  .spills{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
-  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule);background:#fffdf8;padding:9px 15px;cursor:pointer;font-size:14.5px;font-weight:600}
+  .grid-rows{margin-top:22px;display:flex;flex-direction:column}
+  .grow{display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid var(--rule);padding:11px 0}
+  .grow:last-of-type{border-bottom:1px solid var(--rule)}
+  .gfact{font-family:"Source Serif 4",serif;font-size:16.5px;line-height:1.35}
+  .gpills{display:flex;gap:6px;flex-shrink:0}
+  .pill{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--rule);background:#fffdf8;padding:9px 0;width:54px;cursor:pointer;font-size:14.5px;font-weight:600}
   .pill:hover{border-color:var(--ink)}
-  .pill.picked{border-color:var(--accent);background:var(--accent-soft)}
-  .pill input{appearance:none;width:15px;height:15px;border:1.5px solid var(--ink);border-radius:50%;background:#fff;cursor:pointer;flex-shrink:0;display:grid;place-content:center}
-  .pill input:checked{background:var(--accent);border-color:var(--accent)}
-  .pill input:checked::after{content:"";width:5px;height:5px;border-radius:50%;background:#fff}
-  .sextra{margin-top:24px}
-  .sextra label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
-  .sextra input{margin-top:2px}
+  .pill.picked{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+  .pill input{position:absolute;opacity:0;pointer-events:none}
+  .gextra{margin-top:22px}
+  .gextra label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
+  .gextra input{margin-top:2px}
   .send-note{margin-top:22px;font-size:14px;color:var(--muted);line-height:1.55;display:none}
   .send-note.show{display:block}
   .nav{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--rule)}
@@ -132,15 +130,15 @@ var CONFIG = {
 };
 
 /* ================= SECTIONS =================
-   Round 2, 2026-08-20, final shape. Fahad's rulings: no prices (he gets those
-   himself), confirm nothing, photos are his to collect, and services are the
-   only real blocker on starting the site. The owner has said the shop "offers
-   everything", so a plain what-do-you-offer list would come back all ticked and
-   teach us nothing. q1 therefore SORTS each item into printed here or sent out,
-   which is the fact the copy actually needs.
-   Audit: 00-Followup-Audit-2026-08-20.md */
+   Round 2, 2026-08-20. Fahad's rulings: no prices, confirm nothing, photos are
+   his to collect, services are the only blocker. Final revision: do NOT ask
+   printed-here vs sent-out. Instead present the FULL menu of what a print and
+   sign shop could offer, Yes or No against each line, so nothing the shop does
+   is left off the site. Weddings question cut (they make all of those cards).
+   Shipping carriers asked by name. Audit: 00-Followup-Audit-2026-08-20.md */
 var SECTIONS = [
-  {t:'What You Do', i:'Five questions about the work itself. Almost all of it is tapping.'}
+  {t:'What You Offer', i:'Four lists. Tap Yes or No against each line. Anything you have never been asked for, say No, and it stays off your website.'},
+  {t:'How You Work', i:'Three quick ones and you are done.'}
 ];
 var MODULES = {
   service: {t:'Service Details', i:'A few questions about how your service works.', after:1},
@@ -149,49 +147,88 @@ var MODULES = {
 var INDUSTRY = {t:'', i:'', q:[]};
 
 /* ================= QUESTIONS =================
-   k: text | area | radio | check | sort  ·  sort rows carry l, and the
-   question carries opts (two labels) plus an optional extra text field. */
+   k: text | area | radio | check | grid  ·  grid rows carry l, the question
+   carries opts (two short labels) and an optional extra text field. */
 var QUESTIONS = [
-  {id:'q1', s:0, t:'For each of these, do you print it here or send it out?', h:'You offer all of these. We just need to know which ones run on your own machines.', k:'sort',
-   opts:['We print it here','We send it out'],
-   extra:'Anything else you print that is not on this list',
-   rows:[
-    {l:'Business cards, letterheads and envelopes'},
-    {l:'Flyers, brochures and posters'},
+  {id:'q1', s:0, t:'Printing', h:'Do you offer each of these?', k:'grid', opts:['Yes','No'],
+   extra:'Anything else you print that is not on this list', rows:[
+    {l:'Business cards'},
+    {l:'Letterheads and envelopes'},
+    {l:'Flyers and brochures'},
+    {l:'Posters'},
+    {l:'Booklets, catalogues and menus'},
+    {l:'Presentation folders'},
+    {l:'NCR and carbon copy forms'},
+    {l:'Notepads'},
+    {l:'Postcards and door hangers'},
     {l:'Wedding and event invitations'},
-    {l:'Banners and vinyl signs'},
-    {l:'Lawn signs and real estate signs'},
-    {l:'Storefront signage and menu boards'},
+    {l:'Greeting and thank you cards'},
     {l:'Stickers and labels'},
-    {l:'Vehicle decals and wraps'},
-    {l:'Shirts, uniforms and apparel'},
-    {l:'Mugs, pens and promotional items'}
+    {l:'Fridge magnets'},
+    {l:'Calendars'},
+    {l:'Canvas and photo prints'}
   ]},
 
-  {id:'q2', s:0, t:'What else does the shop do, besides printing?', h:'Tick everything you offer.', k:'check', o:[
-    {l:'Graphic design, where you make the artwork for the customer'},
-    {l:'Installing signs, wraps and window graphics', link:'Which ones do you install?'},
-    {l:'Shipping parcels for customers, across the counter'},
-    {l:'Shipping finished print orders out to customers'},
-    {l:'Personal mail boxes for rent', link:'How many boxes, and for how long does someone rent one?'}
+  {id:'q2', s:0, t:'Signs and displays', h:'Do you offer each of these?', k:'grid', opts:['Yes','No'],
+   extra:'Any other signage you make that is not on this list', rows:[
+    {l:'Vinyl banners'},
+    {l:'Lawn signs and real estate signs'},
+    {l:'Corrugated plastic signs'},
+    {l:'A-frame and sandwich boards'},
+    {l:'Storefront and building signs'},
+    {l:'Channel letters and lit signs'},
+    {l:'Window graphics and frosted vinyl'},
+    {l:'Menu boards'},
+    {l:'Office, door and wayfinding signs'},
+    {l:'Safety and regulatory signs'},
+    {l:'Acrylic and metal signs'},
+    {l:'Vehicle decals and magnets'},
+    {l:'Full vehicle wraps'},
+    {l:'Pull up banners and trade show displays'},
+    {l:'Backdrops and step and repeat banners'}
+  ]},
+
+  {id:'q3', s:0, t:'Apparel and promotional items', h:'Do you offer each of these?', k:'grid', opts:['Yes','No'],
+   extra:'Anything else in this line that is not listed', rows:[
+    {l:'Screen printed t-shirts and hoodies'},
+    {l:'Embroidered polos, hats and uniforms'},
+    {l:'Hi-vis and workwear'},
+    {l:'Tote bags'},
+    {l:'Mugs and drinkware'},
+    {l:'Pens, keychains and giveaways'},
+    {l:'Lanyards and name badges'},
+    {l:'Awards, plaques and trophies'}
+  ]},
+
+  {id:'q4', s:0, t:'Everything else the shop does', h:'Do you offer each of these?', k:'grid', opts:['Yes','No'],
+   extra:'Any other service the shop offers that is not listed', rows:[
+    {l:'Graphic design for customers'},
+    {l:'Logo and branding design'},
+    {l:'Installing signs, wraps and window graphics'},
+    {l:'Photocopying, scanning and faxing'},
+    {l:'Laminating'},
+    {l:'Binding and booklet finishing'},
+    {l:'Passport and ID photos'},
+    {l:'Personal mail boxes for rent'},
+    {l:'Notary or commissioner of oaths'}
+  ]},
+
+  {id:'q5', s:1, t:'Which shipping companies can a customer use at your counter?', h:'Tick all that apply.', k:'check', o:[
+    {l:'UPS'},
+    {l:'FedEx'},
+    {l:'Canada Post'},
+    {l:'Purolator'},
+    {l:'DHL'},
+    {l:'We do not ship parcels for customers'}
   ], other:true},
 
-  {id:'q3', s:0, t:'Which weddings and events do you make cards and signs for?', h:'Tick the ones you want to be known for.', k:'check', o:[
-    {l:'Shaadi, nikkah, mehndi and walima'},
-    {l:'Anand Karaj and Sikh ceremonies'},
-    {l:'Hindu ceremonies, including mandap and haldi signage'},
-    {l:'Christian and civil weddings'},
-    {l:'Engagements and anniversaries'},
-    {l:'Birthdays, graduations and community events'}
-  ], other:true},
-
-  {id:'q4', s:0, t:'Do you deliver finished orders?', h:'Please select one.', k:'radio', o:[
+  {id:'q6', s:1, t:'Do you deliver finished orders?', h:'Please select one.', k:'radio', o:[
     {l:'Yes, we deliver', link:'Which areas do you deliver to?'},
     {l:'Yes, but only on bigger orders', link:'Which areas do you deliver to?'},
     {l:'No, everything is picked up from the shop'}
   ]},
 
-  {id:'q5', s:0, t:'Do you give a better price on big orders?', h:'Please select one.', k:'radio', o:[
+  {id:'q7', s:1, t:'Do you give a better price on big orders?', h:'Please select one.', k:'radio', o:[
     {l:'Yes', link:'From roughly what quantity?'},
     {l:'It depends on the job', link:'What does it depend on?'},
     {l:'No, the price is the price'}
@@ -227,9 +264,9 @@ function el(html){ var d = document.createElement('section'); d.className = 'ste
 /* cover */
 main.appendChild(el(
   '<div class="cover"><div class="kicker">AZ Printing &amp; Signs</div>' +
-  '<h1>One thing left before we build.</h1>' +
-  '<p>Your website is written. Nothing here asks about prices, and nothing asks what you have already told us. We just need the list of what the shop does, so that nothing you offer gets left off the site.</p>' +
-  '<p>Five questions, and nearly all of it is tapping. Two minutes.</p></div>'
+  '<h1>Tell us everything the shop can do.</h1>' +
+  '<p>Your website is written. Nothing here asks about prices, and nothing asks what you have already told us. This is a list of everything a print and sign shop can offer, and all you do is tap Yes or No against each line, so that nothing you do gets left off your site.</p>' +
+  '<p>Seven questions, and nearly all of it is tapping. Four minutes, and your answers save as you go.</p></div>'
 ));
 
 secOrder.forEach(function(sec, si){
@@ -279,28 +316,27 @@ secOrder.forEach(function(sec, si){
       /* one price field per service from q5, built when the step opens (Fahad, 2026-08-12) */
       var pw = document.createElement('div'); pw.className = 'price-rows'; pw.dataset.source = 'q5'; pw.dataset.priceId = q.id;
       s.appendChild(pw);
-    } else if (q.k === 'sort'){
-      /* two-way sort: the owner says the shop offers everything, so the useful
-         answer is printed here vs sent out, one tap per row (2026-08-20) */
-      var sw = document.createElement('div'); sw.className = 'sort-rows';
+    } else if (q.k === 'grid'){
+      /* full service menu, Yes or No against each line (Fahad, 2026-08-20) */
+      var gw = document.createElement('div'); gw.className = 'grid-rows';
       q.rows.forEach(function(row, ri){
-        var rw = document.createElement('div'); rw.className = 'srow';
-        var rl = document.createElement('p'); rl.className = 'sfact'; rl.textContent = row.l;
-        var pw2 = document.createElement('div'); pw2.className = 'spills';
+        var rw = document.createElement('div'); rw.className = 'grow';
+        var rl = document.createElement('p'); rl.className = 'gfact'; rl.textContent = row.l;
+        var pw2 = document.createElement('div'); pw2.className = 'gpills';
         q.opts.forEach(function(val){
           var pl = document.createElement('label'); pl.className = 'pill';
           var pi = document.createElement('input'); pi.type = 'radio';
           pi.name = q.id + '-r' + ri; pi.value = val;
-          pi.dataset.ansSort = q.id + '||' + row.l;
+          pi.dataset.ansGrid = q.id + '||' + row.l;
           pl.appendChild(pi); pl.appendChild(document.createTextNode(val));
           pw2.appendChild(pl);
         });
         rw.appendChild(rl); rw.appendChild(pw2);
-        sw.appendChild(rw);
+        gw.appendChild(rw);
       });
-      s.appendChild(sw);
+      s.appendChild(gw);
       if (q.extra){
-        var xw = document.createElement('div'); xw.className = 'sextra';
+        var xw = document.createElement('div'); xw.className = 'gextra';
         var xl = document.createElement('label'); xl.textContent = q.extra;
         var xi = document.createElement('input'); xi.type = 'text'; xi.placeholder = 'Your answer';
         xi.dataset.ansExtra = q.id;
@@ -457,11 +493,14 @@ function collect(){
         parts.push(d + ': ' + (byDay[d].open === 'Closed' ? 'Closed' : byDay[d].open + ' to ' + byDay[d].close));
       });
     }
-    [].slice.call(s.querySelectorAll('input[data-ans-sort]:checked')).forEach(function(inp){
-      parts.push(inp.dataset.ansSort.split('||')[1] + ': ' + inp.value);
+    var yes = [], no = [];
+    [].slice.call(s.querySelectorAll('input[data-ans-grid]:checked')).forEach(function(inp){
+      (inp.value === 'Yes' ? yes : no).push(inp.dataset.ansGrid.split('||')[1]);
     });
+    if (yes.length) parts.push('YES: ' + yes.join(', '));
+    if (no.length) parts.push('NO: ' + no.join(', '));
     var xtra = s.querySelector('[data-ans-extra]');
-    if (xtra && xtra.value.trim()) parts.push('Also printed here: ' + xtra.value.trim());
+    if (xtra && xtra.value.trim()) parts.push('ALSO: ' + xtra.value.trim());
     var follows = {};
     [].slice.call(s.querySelectorAll('[data-ans-link]')).forEach(function(inp){
       if (inp.value.trim()) follows[inp.dataset.ansLink.split('||')[1]] = inp.value.trim();
@@ -477,7 +516,7 @@ function collect(){
   return out;
 }
 function fieldKey(f){
-  if (f.dataset.ansSort) return 'S:' + f.dataset.ansSort + '::' + f.value;
+  if (f.dataset.ansGrid) return 'G:' + f.dataset.ansGrid + '::' + f.value;
   if (f.dataset.ansExtra) return 'X:' + f.dataset.ansExtra;
   if (f.dataset.ans) return 'a:' + f.dataset.ans;
   if (f.dataset.ansLink) return 'l:' + f.dataset.ansLink;
