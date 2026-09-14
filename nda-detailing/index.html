@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>NDA Detailing · Website Review</title>
+<!--
+  WORKING ORIGINAL. Shah Khan's review of his NDA Detailing website (Fahad,
+  2026-09-14: "Shah will provide feedback, lets keep it on github").
+
+  Published byte-for-byte to mfahadishtiaq/vela-forms at nda-detailing/index.html,
+  the same channel and pattern as every client questionnaire (production-rules
+  #63): edit THIS file, then re-push the copy. Submits through FormSubmit to the
+  studio inbox, exactly as the questionnaires do.
+
+  Page names and business facts are copied from the live build (generate.py:
+  NUM, SERVICE_NAV, the footer hours line) so the form asks about what the site
+  actually says. If the site changes, change them here too.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#faf7f1;--ink:#1c1915;--muted:#5c554a;--rule:#d9d2c3;--accent:#2c4a35;--accent-soft:#e9efe8;--card:#fffdf8}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,sans-serif;font-size:16px;line-height:1.5}
+  a{color:var(--accent)}
+  .topbar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--rule);z-index:5}
+  .topbar-inner{max-width:760px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .brand{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:500;white-space:nowrap}
+  .meta{font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap}
+  .meta b{color:var(--accent);font-weight:700}
+  .bar{height:3px;background:var(--rule)}
+  .bar i{display:block;height:100%;background:var(--accent);width:0%;transition:width .3s ease}
+  main{max-width:760px;margin:0 auto;padding:44px 20px 150px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+  h1{font-family:"Source Serif 4",Georgia,serif;font-weight:700;letter-spacing:-.01em;font-size:clamp(30px,6vw,42px);line-height:1.18}
+  .intro p{margin-top:16px;font-family:"Source Serif 4",Georgia,serif;font-size:18px;line-height:1.7;max-width:58ch}
+  .intro .open-site{display:inline-block;margin-top:22px;font-weight:600;font-size:15px;text-decoration:none;border:1.5px solid var(--accent);padding:11px 18px}
+  .intro .open-site:hover{background:var(--accent);color:#fff}
+  .saved{margin-top:14px;font-size:14px;color:var(--muted)}
+  .card{margin-top:22px;background:var(--card);border:1px solid var(--rule);padding:24px 24px 22px}
+  .card.done{border-color:var(--accent)}
+  .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .num{font-size:12px;font-weight:600;letter-spacing:.18em;color:var(--muted)}
+  .card h2{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:24px;line-height:1.25;margin-top:4px}
+  .open{font-size:14.5px;font-weight:600;text-decoration:none;white-space:nowrap}
+  .open:hover{text-decoration:underline}
+  .hint{margin-top:10px;color:var(--muted);font-size:15.5px;line-height:1.6}
+  .facts{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:15.5px}
+  .facts dt{color:var(--muted)}
+  .facts dd{font-weight:600}
+  fieldset{border:0;margin-top:18px}
+  legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .choices{display:flex;gap:10px;flex-wrap:wrap}
+  .choice{flex:1 1 220px;display:flex;align-items:center;gap:12px;border:1px solid var(--rule);background:#fff;padding:13px 15px;cursor:pointer;font-size:15.5px;font-weight:500}
+  .choice:hover{border-color:var(--ink)}
+  .choice.picked{border-color:var(--accent);background:var(--accent-soft)}
+  .choice input{appearance:none;width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;background:#fff;flex-shrink:0;display:grid;place-content:center;cursor:pointer}
+  .choice input:checked{background:var(--accent);border-color:var(--accent)}
+  .choice input:checked::after{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+  .choice input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .follow{display:none;margin-top:14px}
+  .follow.show{display:block}
+  label.small{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  textarea,input[type=text]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fff;border:1.5px solid var(--rule);border-radius:0;padding:12px 14px}
+  textarea{min-height:110px;resize:vertical;line-height:1.6}
+  textarea:focus,input[type=text]:focus{outline:none;border-color:var(--accent)}
+  ::placeholder{color:#9a9385}
+  .sendbar{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--rule)}
+  .sendbar-inner{max-width:760px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .note{font-size:14px;color:var(--muted);line-height:1.45}
+  .note.warn{color:#8a2a2a;font-weight:500}
+  button{font:inherit;font-weight:600;font-size:16px;letter-spacing:.03em;padding:14px 30px;cursor:pointer;border:1.5px solid var(--ink);background:var(--ink);color:#fff;border-radius:0;white-space:nowrap}
+  button:hover{background:var(--accent);border-color:var(--accent)}
+  button:disabled{opacity:.4;cursor:default}
+  .thanks{display:none;text-align:left}
+  .thanks.show{display:block}
+  @media(max-width:560px){
+    main{padding:32px 16px 170px}
+    .card{padding:20px 16px 18px}
+    .brand-tail{display:none}
+    .sendbar-inner{flex-direction:column;align-items:stretch;gap:10px}
+    button{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">VELA<span class="brand-tail"> &nbsp;·&nbsp; WEBSITE STUDIO</span></span>
+    <span class="meta"><b id="count">0</b> of <span id="total">0</span> reviewed</span>
+  </div>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main>
+  <section class="intro" id="intro">
+    <p class="kicker">NDA Detailing · Website review</p>
+    <h1>Your website is ready for your review.</h1>
+    <p>Please take a look through each page of your new website and let us know what you would like changed. Open a page with its link, then come back here and leave your notes under that page.</p>
+    <p>Your notes save on this device as you go, so you are welcome to finish in more than one sitting. When you are done, press Send My Feedback at the bottom of the screen.</p>
+    <a class="open-site" href="https://mfahadishtiaq.github.io/nda-detailing-preview/" target="_blank" rel="noopener">Open the full website ↗</a>
+    <p class="saved" id="saved" hidden></p>
+  </section>
+
+  <form id="form" novalidate></form>
+
+  <section class="card" id="extra">
+    <p class="num">ANYTHING ELSE</p>
+    <h2>Is there anything else you would like to add, change or remove?</h2>
+    <p class="hint">For example a service, a photo you would like included, or something about the look of the site.</p>
+    <div style="margin-top:16px"><textarea id="f-extra" data-key="extra" aria-label="Anything else"></textarea></div>
+  </section>
+
+  <section class="card" id="who">
+    <p class="num">YOUR NAME</p>
+    <h2>Who is sending this feedback?</h2>
+    <div style="margin-top:16px"><input type="text" id="f-name" data-key="name" autocomplete="name" aria-label="Your name" placeholder="Your name"></div>
+  </section>
+
+  <section class="thanks card" id="thanks" aria-live="polite">
+    <p class="num">SENT</p>
+    <h2>Thank you, your feedback has been sent.</h2>
+    <p class="hint">Fahad has received your notes and will follow up with you about the changes.</p>
+  </section>
+</main>
+
+<div class="sendbar" id="sendbar">
+  <div class="sendbar-inner">
+    <span class="note" id="note">Review each page, then send your feedback.</span>
+    <button type="button" id="send">Send My Feedback</button>
+  </div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+var CONFIG = {
+  client: 'Shah Khan',
+  subject: 'NDA Detailing website review from Shah Khan',
+  site: 'https://mfahadishtiaq.github.io/nda-detailing-preview/',
+  emailUser: 'm.fahad.ishtiaq',
+  emailDomain: 'gmail.com'
+};
+
+/* Every page of the live site, in the order the site's own menu gives them.
+   Business facts are the exact strings the site publishes. */
+var ITEMS = [
+  { key: 'details', title: 'Your business details', page: null,
+    hint: 'These details appear across the whole website. Please check that each one is correct.',
+    facts: [['Phone', '647-809-5642'], ['Days and hours', 'Tuesdays and Sundays, 9am to 8pm'], ['Area', 'Mississauga']],
+    yes: 'All of these are correct', no: 'Something needs changing',
+    ask: 'What should it say instead?' },
+  { key: 'home', title: 'Home page', page: 'index.html',
+    hint: 'The first page visitors see, including the opening, the services, Meet the Owner and Book a Slot.' },
+  { key: 'full-treatment', title: 'The Full Treatment', page: 'full-treatment.html' },
+  { key: 'interior', title: 'Interior Detail', page: 'interior-detail.html' },
+  { key: 'exterior', title: 'Exterior Detail', page: 'exterior-detail.html' },
+  { key: 'paint', title: 'Paint Correction', page: 'paint-correction.html' },
+  { key: 'ceramic', title: 'Ceramic Coating', page: 'ceramic-coating.html' },
+  { key: 'headlight', title: 'Headlight Restoration', page: 'headlight-restoration.html' },
+  { key: 'portfolio', title: 'Portfolio', page: 'portfolio.html',
+    hint: 'This includes every car make page. Let us know if a photo should come down, or if a car belongs under a different make.' },
+  { key: 'pricing', title: 'Pricing', page: 'prices.html',
+    hint: 'Please check every price and time carefully, since customers will rely on them.' },
+  { key: 'faq', title: 'Frequently Asked Questions', page: 'faq.html',
+    hint: 'Let us know if any answer should be worded differently, or if a common question is missing.' }
+];
+
+var STORE = 'vela-review-nda-detailing';
+var form = document.getElementById('form');
+var total = ITEMS.length;
+document.getElementById('total').textContent = total;
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+ITEMS.forEach(function(it, i){
+  var n = String(i + 1).padStart(2, '0');
+  var yes = it.yes || 'I am happy with this page';
+  var no = it.no || 'I would like some changes';
+  var ask = it.ask || 'What would you like changed on this page?';
+  var open = it.page ? '<a class="open" href="' + CONFIG.site + it.page + '" target="_blank" rel="noopener">Open this page ↗</a>' : '';
+  var facts = it.facts ? '<dl class="facts">' + it.facts.map(function(f){ return '<dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd>'; }).join('') + '</dl>' : '';
+  var el = document.createElement('section');
+  el.className = 'card';
+  el.id = 'card-' + it.key;
+  el.innerHTML =
+    '<div class="card-head"><div><p class="num">' + n + '</p><h2>' + esc(it.title) + '</h2></div>' + open + '</div>' +
+    (it.hint ? '<p class="hint">' + esc(it.hint) + '</p>' : '') + facts +
+    '<fieldset><legend>' + esc(it.title) + '</legend><div class="choices">' +
+      '<label class="choice"><input type="radio" name="' + it.key + '" value="ok"><span>' + esc(yes) + '</span></label>' +
+      '<label class="choice"><input type="radio" name="' + it.key + '" value="change"><span>' + esc(no) + '</span></label>' +
+    '</div></fieldset>' +
+    '<div class="follow" id="follow-' + it.key + '"><label class="small" for="t-' + it.key + '">' + esc(ask) + '</label>' +
+    '<textarea id="t-' + it.key + '" data-key="t-' + it.key + '"></textarea></div>';
+  form.appendChild(el);
+});
+
+/* ---------- state ---------- */
+function read(){ try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch(e){ return {}; } }
+function write(s){ try { localStorage.setItem(STORE, JSON.stringify(s)); } catch(e){} }
+
+function sync(){
+  var done = 0;
+  ITEMS.forEach(function(it){
+    var picked = form.querySelector('input[name="' + it.key + '"]:checked');
+    var card = document.getElementById('card-' + it.key);
+    card.querySelectorAll('.choice').forEach(function(c){ c.classList.toggle('picked', c.querySelector('input').checked); });
+    document.getElementById('follow-' + it.key).classList.toggle('show', !!picked && picked.value === 'change');
+    card.classList.toggle('done', !!picked);
+    if (picked) done++;
+  });
+  document.getElementById('count').textContent = done;
+  document.getElementById('fill').style.width = (done / total * 100) + '%';
+  return done;
+}
+
+function save(){
+  var s = {};
+  ITEMS.forEach(function(it){
+    var p = form.querySelector('input[name="' + it.key + '"]:checked');
+    if (p) s[it.key] = p.value;
+  });
+  document.querySelectorAll('[data-key]').forEach(function(el){ if (el.value) s[el.dataset.key] = el.value; });
+  write(s);
+}
+
+function restore(){
+  var s = read(), any = false;
+  ITEMS.forEach(function(it){
+    if (s[it.key]){
+      var r = form.querySelector('input[name="' + it.key + '"][value="' + s[it.key] + '"]');
+      if (r){ r.checked = true; any = true; }
+    }
+  });
+  document.querySelectorAll('[data-key]').forEach(function(el){
+    if (s[el.dataset.key]){ el.value = s[el.dataset.key]; any = true; }
+  });
+  if (any){
+    var sv = document.getElementById('saved');
+    sv.textContent = 'Welcome back. Your notes from last time are still here.';
+    sv.hidden = false;
+  }
+}
+
+document.addEventListener('change', function(e){
+  if (e.target.type === 'radio'){
+    sync(); save();
+    if (e.target.value === 'change'){
+      var t = document.getElementById('t-' + e.target.name);
+      if (t) t.focus({ preventScroll: true });
+    }
+  }
+});
+document.addEventListener('input', function(e){ if (e.target.dataset && e.target.dataset.key) save(); });
+
+/* ---------- send ---------- */
+var armed = false;
+var note = document.getElementById('note');
+var btn = document.getElementById('send');
+
+function collect(){
+  var out = {};
+  ITEMS.forEach(function(it, i){
+    var n = String(i + 1).padStart(2, '0');
+    var p = form.querySelector('input[name="' + it.key + '"]:checked');
+    var label = n + ' · ' + it.title + (it.page ? ' (' + it.page + ')' : '');
+    if (!p){ out[label] = '(not reviewed)'; return; }
+    if (p.value === 'ok'){ out[label] = it.yes || 'Happy with this page'; return; }
+    var t = document.getElementById('t-' + it.key).value.trim();
+    out[label] = 'CHANGES REQUESTED: ' + (t || '(no details written)');
+  });
+  var x = document.getElementById('f-extra').value.trim();
+  out['12 · Anything else'] = x || '(nothing added)';
+  out['Name'] = document.getElementById('f-name').value.trim() || '(not given)';
+  return out;
+}
+
+btn.addEventListener('click', function(){
+  var done = sync();
+  var empty = ITEMS.filter(function(it){
+    var p = form.querySelector('input[name="' + it.key + '"]:checked');
+    return p && p.value === 'change' && !document.getElementById('t-' + it.key).value.trim();
+  });
+  if (empty.length){
+    note.textContent = 'Please describe the changes you would like under "' + empty[0].title + '".';
+    note.classList.add('warn');
+    document.getElementById('card-' + empty[0].key).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    armed = false;
+    return;
+  }
+  if (done < total && !armed){
+    armed = true;
+    note.textContent = 'You have reviewed ' + done + ' of ' + total + ' sections. If you would like to send now, please press Send My Feedback again.';
+    note.classList.add('warn');
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Sending…';
+  note.classList.remove('warn'); note.textContent = 'Sending your feedback.';
+  var payload = collect();
+  payload._subject = CONFIG.subject;
+  payload._template = 'table';
+  payload._captcha = 'false';
+  fetch('https://formsubmit.co/ajax/' + CONFIG.emailUser + '@' + CONFIG.emailDomain, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(){
+    form.hidden = true;
+    ['intro', 'extra', 'who'].forEach(function(id){ document.getElementById(id).hidden = true; });
+    document.getElementById('sendbar').hidden = true;
+    var th = document.getElementById('thanks');
+    th.classList.add('show');
+    window.scrollTo({ top: 0 });
+    try { localStorage.removeItem(STORE); } catch(e){}
+  })
+  .catch(function(){
+    btn.disabled = false; btn.textContent = 'Send My Feedback';
+    note.textContent = 'The feedback did not send. Please check your internet connection and press Send My Feedback again. Your notes are still saved.';
+    note.classList.add('warn');
+  });
+});
+
+restore();
+sync();
+</script>
+</body>
+</html>
