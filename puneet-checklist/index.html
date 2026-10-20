@@ -614,11 +614,15 @@ function submit(){
   next.disabled = true; next.textContent = 'Sending…';
   var body = {}; Object.keys(payload).forEach(function(k){ body[k] = payload[k]; });
   body._subject = CONFIG.subject; body._template = 'box'; body._captcha = 'false';
+  /* give up after 20 seconds, so a slow email service never leaves him stuck on "Sending…" */
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 20000);
   fetch('https://formsubmit.co/ajax/' + CONFIG.emailUser + '@' + CONFIG.emailDomain, {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-    body: JSON.stringify(body)
-  }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+    body: JSON.stringify(body),
+    signal: ctl ? ctl.signal : undefined
+  }).then(function(r){ clearTimeout(timer); if (!r.ok) throw new Error(r.status); return r.json(); })
   .then(function(){
     document.querySelector('.step.active h2').textContent = 'Your answers have been sent. Thank you.';
     document.querySelector('.step.active .hint').textContent = 'Fahad has received your answers. Nothing changes in Penny until you have both agreed it.';
@@ -626,6 +630,7 @@ function submit(){
     note.classList.remove('show');
   })
   .catch(function(){
+    clearTimeout(timer);
     next.disabled = false; next.textContent = 'Send Your Answers';
     note.textContent = 'The send did not go through. Your answers are below: please copy them and send them to Fahad by WhatsApp or email.';
     note.classList.add('show');
