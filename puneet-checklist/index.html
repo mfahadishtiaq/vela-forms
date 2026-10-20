@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penny Checklist Questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Vela questionnaire format (Website Development master form): one question per screen, Back / Next, sends to Fahad. */
+  :root{--paper:#faf7f1;--ink:#1c1915;--muted:#5c554a;--rule:#d9d2c3;--accent:#2c4a35;--accent-soft:#e9efe8}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:"Inter",sans-serif;font-size:16px;min-height:100vh;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--rule);z-index:5}
+  .topbar-inner{max-width:800px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+  .brand{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:500}
+  .meta{font-size:13px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:10px;white-space:nowrap}
+  .meta b{color:var(--ink);font-weight:600}
+  .pct{color:var(--accent);font-weight:700;font-size:14px}
+  .pct:empty{display:none}
+  .bar{height:3px;background:var(--rule)}
+  .bar i{display:block;height:100%;background:var(--accent);width:0%}
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 22px 130px}
+  .step{max-width:640px;width:100%;display:none}
+  .step.active{display:block}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+  h1,h2{font-family:"Source Serif 4",serif;font-weight:600;letter-spacing:-.01em;font-size:clamp(27px,5.4vw,38px);line-height:1.22}
+  h1{font-weight:700}
+  .hint{margin-top:12px;color:var(--muted);font-size:16px;line-height:1.6}
+  .cover p{margin-top:18px;font-size:17.5px;color:var(--ink);line-height:1.75;max-width:54ch;font-family:"Source Serif 4",serif}
+  input[type=text],textarea{
+    width:100%;margin-top:30px;font:inherit;font-size:17px;padding:10px 2px;color:var(--ink);
+    background:transparent;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;
+  }
+  textarea{min-height:110px;resize:vertical;line-height:1.65;border:1.5px solid var(--rule);border-bottom-color:var(--ink);padding:14px;background:#fffdf8}
+  input:focus,textarea:focus{outline:none;border-bottom-color:var(--accent);border-bottom-width:2px}
+  textarea:focus{border-color:var(--accent);border-width:1.5px;border-bottom-width:2px}
+  ::placeholder{color:#9a9385}
+  .choices{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+  .choice{display:flex;align-items:center;gap:14px;border:1px solid var(--rule);background:#fffdf8;padding:15px 16px;cursor:pointer;font-size:16.5px;font-weight:500}
+  .choice:hover{border-color:var(--ink)}
+  .choice.picked{border-color:var(--accent);background:var(--accent-soft)}
+  .choice.off{display:none}
+  .choice input{appearance:none;width:19px;height:19px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;flex-shrink:0;display:grid;place-content:center}
+  .choice input[type=radio]{border-radius:50%}
+  .choice input:checked{background:var(--accent);border-color:var(--accent)}
+  .choice input:checked::after{content:"";width:7px;height:7px;background:#fff}
+  .choice input[type=radio]:checked::after{border-radius:50%}
+  .other-field,.follow{display:none;margin:-2px 0 6px;padding-left:49px}
+  .other-field.show,.follow.show{display:block}
+  .other-field label,.follow > label{display:block;font-size:14px;font-weight:600;color:var(--muted)}
+  .other-field input,.follow input[type=text]{margin-top:2px}
+  .picks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .pk{position:relative}
+  .pk input{position:absolute;opacity:0;pointer-events:none}
+  .pk span{display:block;font-size:14.5px;font-weight:500;padding:8px 14px;border:1px solid var(--rule);background:#fffdf8;cursor:pointer}
+  .pk span:hover{border-color:var(--ink)}
+  .pk input:checked + span{background:var(--accent);border-color:var(--accent);color:#fff}
+  .pk input:focus-visible + span{outline:2px solid var(--accent);outline-offset:2px}
+  .grid{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+  .grid-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:12px;align-items:center}
+  .grid-row .day{font-weight:600;font-size:15px}
+  .grid-row select{font:inherit;font-size:15px;padding:10px 8px;border:1px solid var(--rule);background:#fffdf8;color:var(--ink);border-radius:0;width:100%}
+  .grid-row select:focus{outline:none;border-color:var(--accent)}
+  .send-note{margin-top:22px;font-size:14px;color:var(--muted);line-height:1.55;display:none}
+  .send-note.show{display:block}
+  #copyOut{display:none;margin-top:16px;font-size:13px;min-height:180px}
+  .nav{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--rule)}
+  .nav-inner{max-width:800px;margin:0 auto;padding:16px 20px;display:flex;justify-content:space-between;gap:12px}
+  button{font:inherit;font-weight:600;font-size:16px;letter-spacing:.04em;padding:15px 34px;cursor:pointer;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0}
+  button.primary{background:var(--ink);color:#fff}
+  button.primary:hover{background:var(--accent);border-color:var(--accent)}
+  button:disabled{opacity:.35;cursor:default}
+  .interstitial .big-no{font-family:"Source Serif 4",serif;font-size:64px;font-weight:700;color:var(--accent);line-height:1;margin-bottom:22px}
+  @media(max-width:560px){
+    main{padding:32px 18px 140px}
+    .brand-tail{display:none}
+    .meta b{max-width:140px;overflow:hidden;text-overflow:ellipsis}
+    .grid-row{grid-template-columns:1fr;gap:4px}
+    .grid-row .day{font-size:14px}
+    button{padding:14px 24px}
+    .follow,.other-field{padding-left:16px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">VELA<span class="brand-tail"> &nbsp;·&nbsp; PENNY</span></span>
+    <span class="meta"><b id="secname">Welcome</b><span class="pct" id="pct"></span></span>
+  </div>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="main"></main>
+
+<div class="nav">
+  <div class="nav-inner">
+    <button id="back" type="button">Back</button>
+    <button id="next" class="primary" type="button">Start</button>
+  </div>
+</div>
+
+<script>
+var CONFIG = {
+  clientName: 'Puneet Mann',
+  subject: 'Puneet Mann: Penny checklist answers',
+  emailUser: 'm.fahad.ishtiaq',
+  emailDomain: 'gmail.com'
+};
+
+/* Follow-ups that open under a ticked paper. Each asks its own question, so the options always read naturally. */
+var M   = {label:'How far back?', o:['Latest one only', '1 month', '3 months', '6 months', '12 months']};
+var Y   = {label:'How many years?', o:['1 year', '2 years', '3 years']};
+var NY  = {label:'How many years for this income?', o:['1 year', '2 years', '3 years']};
+var S   = {label:'How many pay stubs?', o:['1', '2', '3']};
+var IDS = {label:'How many pieces of ID?', o:['1', '2']};
+function p(l, pick){ return pick ? {l:l, pick:pick} : {l:l}; }
+
+/* Answers that decide which questions (and options) show. */
+function has(qid, value){
+  var inp = document.querySelector('input[name="' + qid + '"][value="' + value.replace(/"/g, '\\"') + '"]');
+  return !!(inp && inp.checked);
+}
+function any(qid){ return !!document.querySelector('.choice input[name="' + qid + '"]:checked'); }
+
+var ALL = 'Please select all that apply.';
+var FOLLOW = 'Please select all that apply. Some papers ask a short follow-up when you tick them.';
+var EXTRA = 'Please select every paper you need on top of the basics. Some papers ask a short follow-up when you tick them.';
+var DESCRIBE = 'Please describe it, and the papers it needs';
+
+var SECTIONS = [
+  {key:'basics', t:'Every client', i:'First, the papers you ask every client for, whatever their deal or their job.'},
+  {key:'deal', t:'The deal', i:'Which kinds of deals you do, then the extra papers each one needs. You will only see the deals you pick.'},
+  {key:'people', t:'The people', i:'Some clients need extra papers because of their situation. You will only see the situations you pick.'},
+  {key:'income', t:'Income', i:'The papers you need for each way a client earns money. You will only see the kinds of income you pick.'},
+  {key:'owned', t:'Other homes they own', i:'Papers for homes the client already owns, besides the one being financed.'},
+  {key:'down', t:'Down payment', i:'The proof you need for each place a down payment comes from.'},
+  {key:'property', t:'The property', i:'Extra papers for some kinds of homes being financed.'},
+  {key:'approval', t:'After approval', i:'What lenders usually ask for once they approve the deal.'},
+  {key:'rules', t:'Must-haves and who sends them', i:'Which papers you wait for, and who usually sends each one.'},
+  {key:'timing', t:'Timing', i:'When you ask for each paper, and when it is too old to use.'},
+  {key:'final', t:'Final thoughts', i:'One last question.'}
+];
+
+var DEALS = ['Buying a home (resale)', 'Buying a new build', 'Refinance', 'Switch to another lender', 'Renewal with the same lender',
+  'Pre-approval', 'Second mortgage or HELOC', 'Buying before selling (bridge)', 'Buying a rental property', 'B lender deal', 'Private lender deal'];
+
+var QUESTIONS = [
+  /* ---------- Every client ---------- */
+  {id:'b1', s:'basics', t:'Which papers do you ask every client for?', h:'Please select all that apply. Papers for their job come later, under Income.', k:'check', other:true, o:[
+    p('Photo ID', IDS), p('Proof of address'), p('Bank statements', M), p('Notice of Assessment (NOA)', Y),
+    p('Void cheque'), p('Credit check consent'), p('Signed application')]},
+  {id:'b2', s:'basics', t:'When there are two applicants, does each one give these papers?', h:'Please select one.', k:'radio', o:[
+    {l:'Yes, each applicant gives every paper'},
+    {l:'Each gives their own, but shared accounts only once'},
+    {l:'Some papers come from the main applicant only', link:'Which papers come from the main applicant only?'}]},
+
+  /* ---------- The deal ---------- */
+  {id:'d0', s:'deal', t:'Which of these deals do you do?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:DEALS.map(function(d){ return p(d); })},
+  {id:'d1', s:'deal', show:function(){ return has('d0', DEALS[0]); }, t:'Buying a home (resale): which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Purchase agreement'), p('Amendments and waivers'), p('MLS listing'), p('Deposit receipt'), p('Home insurance'), p("Lawyer's details")]},
+  {id:'d2', s:'deal', show:function(){ return has('d0', DEALS[1]); }, t:'Buying a new build: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Builder agreement'), p('Amendments'), p('All deposit receipts'), p('Closing date letter from the builder'), p('Home insurance'), p("Lawyer's details")]},
+  {id:'d3', s:'deal', show:function(){ return has('d0', DEALS[2]); }, t:'Refinance: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Mortgage statement'), p('Property tax bill'), p('Home insurance'), p('Statements for debts being paid off'), p("Lawyer's details")]},
+  {id:'d4', s:'deal', show:function(){ return has('d0', DEALS[3]); }, t:'Switch to another lender: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Mortgage statement'), p('Renewal letter from the current lender'), p('Property tax bill'), p('Home insurance')]},
+  {id:'d5', s:'deal', show:function(){ return has('d0', DEALS[4]); }, t:'Renewal with the same lender: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Renewal letter'), p('Mortgage statement'), p('Property tax bill')]},
+  {id:'d6', s:'deal', show:function(){ return has('d0', DEALS[5]); }, t:'For a pre-approval, do you collect the same papers as for a full deal?', h:'Please select one.', k:'radio', o:[
+    {l:'Yes, the same papers'},
+    {l:'Fewer papers', link:'Which papers do you collect for a pre-approval?'},
+    {l:'Only a credit check at first'}]},
+  {id:'d7', s:'deal', show:function(){ return has('d0', DEALS[6]); }, t:'Second mortgage or HELOC: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('First mortgage statement'), p('Property tax bill'), p('Home insurance'), p('Appraisal')]},
+  {id:'d8', s:'deal', show:function(){ return has('d0', DEALS[7]); }, t:'Buying before selling: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Purchase agreement for the new home'), p('Sale agreement for the current home'), p('Amendments and waivers for the sale'), p('Mortgage statement for the current home')]},
+  {id:'d9', s:'deal', show:function(){ return has('d0', DEALS[8]); }, t:'Buying a rental property: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Leases, if already rented'), p('Expected rent from the appraisal')]},
+  {id:'d10', s:'deal', show:function(){ return has('d0', DEALS[9]); }, t:'B lender deal: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Bank statements to show income', M), p('Letter explaining their income'), p('Appraisal')]},
+  {id:'d11', s:'deal', show:function(){ return has('d0', DEALS[10]); }, t:'Private lender deal: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Appraisal'), p('Mortgage statement'), p('Property tax bill'), p('Home insurance'), p("Letter on how they will pay it back")]},
+  {id:'d12', s:'deal', show:function(){ return DEALS.some(function(d){ return d !== DEALS[5] && has('d0', d); }); },
+    t:'For which of your deals can you skip some of the basics?',
+    h:'The basics are the papers from question 1, plus the papers for the client\'s job. Select every deal where you do not need all of them.', k:'check',
+    o:DEALS.filter(function(d){ return d !== DEALS[5]; }).map(function(d){
+      return {l:d, link:'Which papers can you skip for this deal?', show:function(){ return has('d0', d); }};
+    }).concat([{l:'None, every deal needs all of them'}])},
+
+  /* ---------- The people ---------- */
+  {id:'pp0', s:'people', t:'Which of these clients do you see?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:[
+    p('New to Canada (permanent resident under 5 years)'), p('On a work permit'), p('Separated or divorced'), p('Has a co-signer'),
+    p('Someone on title who is not borrowing'), p('Past credit problems (bankruptcy, consumer proposal, collections)'), p('Owes money to CRA')]},
+  {id:'pp1', s:'people', show:function(){ return has('pp0', 'New to Canada (permanent resident under 5 years)'); }, t:'New to Canada: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('PR card or confirmation of PR'), p('Passport'), p('Bank statements from their home country', M)]},
+  {id:'pp2', s:'people', show:function(){ return has('pp0', 'On a work permit'); }, t:'On a work permit: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Work permit'), p('Passport'), p('Employment letter')]},
+  {id:'pp3', s:'people', show:function(){ return has('pp0', 'Separated or divorced'); }, t:'Separated or divorced: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Separation agreement'), p('Divorce certificate or court order'), p('Proof they are paying support', M)]},
+  {id:'pp4', s:'people', show:function(){ return has('pp0', 'Has a co-signer'); }, t:'What do you need from a co-signer?', h:'Please select one.', k:'radio', other:true, o:[
+    {l:'Everything an applicant gives'}, {l:'Photo ID only'}, {l:'Photo ID and proof of income'}]},
+  {id:'pp5', s:'people', show:function(){ return has('pp0', 'Someone on title who is not borrowing'); }, t:'Someone on title who is not borrowing: which papers do you need from them?', h:ALL, k:'check', other:true, o:[
+    p('Photo ID'), p('Signed consent')]},
+  {id:'pp6', s:'people', show:function(){ return has('pp0', 'Past credit problems (bankruptcy, consumer proposal, collections)'); }, t:'Past credit problems: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('Bankruptcy discharge certificate'), p('Proof the consumer proposal is paid off'), p('Proof collections are paid'), p('Letter explaining what happened')]},
+  {id:'pp7', s:'people', show:function(){ return has('pp0', 'Owes money to CRA'); }, t:'Owes money to CRA: which extra papers do you need?', h:EXTRA, k:'check', other:true, o:[
+    p('CRA statement of account'), p('Proof of a payment plan'), p('Proof it is paid')]},
+
+  /* ---------- Income ---------- */
+  {id:'in0', s:'income', t:'Which kinds of income do your clients have?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:[
+    p('Salary, full-time'), p('Hourly or part-time'), p('New job or on probation'), p('Overtime or bonus'), p('Commission'),
+    p('Self-employed, no company'), p('Owns a company'), p('Truck driver, owner-operator'), p('Gig work (Uber, DoorDash)'), p('Contract work'),
+    p('Retired, pension'), p('On maternity or parental leave'), p('Rental income'), p('Income from abroad'), p('Government benefits or support'),
+    p('No income')]},
+  {id:'in1', s:'income', show:function(){ return has('in0', 'Salary, full-time'); }, t:'Salary, full-time: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Pay stubs', S), p('Employment letter'), p('T4', Y)]},
+  {id:'in2', s:'income', show:function(){ return has('in0', 'Hourly or part-time'); }, t:'Hourly or part-time: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Pay stubs', S), p('Employment letter'), p('T4', Y), p('NOA', NY)]},
+  {id:'in3', s:'income', show:function(){ return has('in0', 'New job or on probation'); }, t:'New job or on probation: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Job offer letter'), p('Employment letter'), p('Pay stubs', S), p('Proof of their previous job')]},
+  {id:'in4', s:'income', show:function(){ return has('in0', 'Overtime or bonus'); }, t:'Overtime or bonus: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('T4', Y), p('Year-to-date pay stub'), p('Letter confirming the bonus')]},
+  {id:'in5', s:'income', show:function(){ return has('in0', 'Commission'); }, t:'Commission: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Commission statements', M), p('Full tax return (T1 General)', Y), p('NOA', NY), p('T4 or T4A', Y)]},
+  {id:'in6', s:'income', show:function(){ return has('in0', 'Self-employed, no company'); }, t:'Self-employed, no company: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Full tax return (T1 General)', Y), p('NOA', NY), p('Business statement (T2125)', Y), p('Business registration or HST number'), p('Business bank statements', M)]},
+  {id:'in7', s:'income', show:function(){ return has('in0', 'Owns a company'); }, t:'Owns a company: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Articles of incorporation'), p('Corporate tax return (T2)', Y), p('Financial statements', Y), p('Corporate NOA', Y), p('Business bank statements', M),
+    p('Full tax return (T1 General)', Y), p('NOA', NY)]},
+  {id:'in8', s:'income', show:function(){ return has('in0', 'Truck driver, owner-operator'); }, t:'Truck driver, owner-operator: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Full tax return (T1 General)', Y), p('NOA', NY), p('Settlement statements from the carrier', M), p('Business bank statements', M), p('Truck loan or lease statement')]},
+  {id:'in9', s:'income', show:function(){ return has('in0', 'Gig work (Uber, DoorDash)'); }, t:'Gig work: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Earnings summary from the app', Y), p('Full tax return (T1 General)', Y), p('NOA', NY)]},
+  {id:'in10', s:'income', show:function(){ return has('in0', 'Contract work'); }, t:'Contract work: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Contract'), p('T4A', Y), p('Invoices', M), p('NOA', NY)]},
+  {id:'in11', s:'income', show:function(){ return has('in0', 'Retired, pension'); }, t:'Retired, pension: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Pension statement or letter'), p('T4A, CPP or OAS slips', Y), p('Bank statements showing the deposits', M)]},
+  {id:'in12', s:'income', show:function(){ return has('in0', 'On maternity or parental leave'); }, t:'On maternity or parental leave: which papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Return-to-work letter'), p('EI statement'), p('Employment letter')]},
+  {id:'in13', s:'income', show:function(){ return has('in0', 'Rental income'); }, t:'Rental income: which papers do you need?', h:'Please select all that apply. Leases are asked later, under Other homes they own.', k:'check', other:true, o:[
+    p('Full tax return showing the rent (T1 General)', Y), p('Bank statements showing the rent', M)]},
+  {id:'in14', s:'income', show:function(){ return has('in0', 'Income from abroad'); }, t:'Income from abroad: which papers do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Foreign tax returns', Y), p('Foreign bank statements', M), p('Employment letter from abroad')]},
+  {id:'in15', s:'income', show:function(){ return has('in0', 'Government benefits or support'); }, t:'Government benefits or support: which papers do you need?', h:'Please select the paper you need for each one you count as income.', k:'check', other:true, o:[
+    p('Child benefit: CCB notice'), p('CPP: benefit letter or T4A(P)'), p('OAS: benefit letter or T4A(OAS)'), p('EI: T4E or payment record'),
+    p('ODSP: benefit letter'), p('Child or spousal support: separation agreement or court order'), p('Bank statements showing the deposits', M)]},
+  {id:'in16', s:'income', show:function(){ return has('in0', 'No income'); }, t:'For a person on the deal with no income, which papers do you need?', h:'For example, a spouse who does not work. Please select one.', k:'radio', other:true, o:[
+    {l:'The same basics as everyone'}, {l:'Photo ID only'}]},
+
+  /* ---------- Other homes they own ---------- */
+  {id:'oh0', s:'owned', t:'Besides the home being financed, which homes do your clients own?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:[
+    p('A home or cottage they are keeping'), p('A rental property'), p('A home they are selling')]},
+  {id:'oh1', s:'owned', show:function(){ return has('oh0', 'A home or cottage they are keeping'); }, t:'A home or cottage they are keeping: which papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Mortgage statement'), p('Property tax bill'), p('Home insurance')]},
+  {id:'oh2', s:'owned', show:function(){ return has('oh0', 'A rental property'); }, t:'A rental property: which papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Lease'), p('Mortgage statement'), p('Property tax bill'), p('Home insurance')]},
+  {id:'oh3', s:'owned', show:function(){ return has('oh0', 'A home they are selling'); }, t:'A home they are selling: which papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Sale agreement'), p('Amendments and waivers'), p('Mortgage statement'), p('Payout statement')]},
+
+  /* ---------- Down payment ---------- */
+  {id:'dp0', s:'down', t:'Where do your clients’ down payments come from?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:[
+    p('Their own savings'), p('RRSP, FHSA, TFSA or other investments'), p('Gift from family'), p('Selling a home they own'), p('Money from abroad'), p('Borrowed (line of credit)')]},
+  {id:'dp1', s:'down', show:function(){ return has('dp0', 'Their own savings'); }, t:'Down payment from savings: what proof do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Bank statements showing the savings', M), p('Explanation of any large deposits')]},
+  {id:'dp2', s:'down', show:function(){ return has('dp0', 'RRSP, FHSA, TFSA or other investments'); }, t:'Down payment from investments: what proof do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Account statements', M), p('Proof of withdrawal')]},
+  {id:'dp3', s:'down', show:function(){ return has('dp0', 'Gift from family'); }, t:'Gift from family: what proof do you need?', h:ALL, k:'check', other:true, o:[
+    p('Gift letter'), p("Giver's bank statement"), p("Proof the money reached the client's account")]},
+  {id:'dp4', s:'down', show:function(){ return has('dp0', 'Selling a home they own') && !has('oh0', 'A home they are selling'); }, t:'Down payment from selling a home: what proof do you need?', h:ALL, k:'check', other:true, o:[
+    p('Sale agreement'), p('Mortgage statement'), p('Payout statement')]},
+  {id:'dp5', s:'down', show:function(){ return has('dp0', 'Money from abroad'); }, t:'Money from abroad: what proof do you need?', h:FOLLOW, k:'check', other:true, o:[
+    p('Foreign bank statements', M), p('Wire transfer proof'), p('Canadian bank statement showing it arrived')]},
+  {id:'dp6', s:'down', show:function(){ return has('dp0', 'Borrowed (line of credit)'); }, t:'Borrowed down payment: what proof do you need?', h:ALL, k:'check', other:true, o:[
+    p('Line of credit statement')]},
+
+  /* ---------- The property ---------- */
+  {id:'pr0', s:'property', t:'Which of these homes do you finance?', h:ALL, k:'check', other:true, otherLabel:DESCRIBE, o:[
+    p('Condo'), p('Rural home with a well or septic'), p('Home with a basement or unit rented out'), p('2 to 4 units')]},
+  {id:'pr1', s:'property', show:function(){ return has('pr0', 'Condo'); }, t:'Condo: which extra papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Status certificate'), p('Proof of condo fees')]},
+  {id:'pr2', s:'property', show:function(){ return has('pr0', 'Rural home with a well or septic'); }, t:'Rural home: which extra papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Water test'), p('Septic inspection')]},
+  {id:'pr3', s:'property', show:function(){ return has('pr0', 'Home with a basement or unit rented out'); }, t:'Basement or unit rented out: which extra papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Lease'), p('Appraisal showing the rent')]},
+  {id:'pr4', s:'property', show:function(){ return has('pr0', '2 to 4 units'); }, t:'2 to 4 units: which extra papers do you need?', h:ALL, k:'check', other:true, o:[
+    p('Lease for each unit'), p('List of all units and rents')]},
+
+  /* ---------- After approval ---------- */
+  {id:'a1', s:'approval', t:'Once the lender approves, which papers do they usually ask for?', h:'Penny already watches for the lender\'s approval letter (the commitment). Please select all that apply.', k:'check', other:true, o:[
+    p('Signed commitment'), p('Updated pay stub'), p('Updated bank statement'), p('Home insurance'), p('Appraisal'), p("Lawyer's details"),
+    p('Gift letter'), p('Proof the down payment is in their account')]},
+
+  /* ---------- Must-haves and who sends them ---------- */
+  {id:'nh', s:'rules', t:'Which of your papers are nice to have, not must-have?', h:'These are the papers you picked earlier. Nice to have means you take it if the client has it, but you do not wait for it. Please select all that apply.', k:'dyn'},
+  {id:'ws', s:'rules', t:'Who usually sends each of these papers?', h:'Please pick who sends each one. Leave any you are not sure about.', k:'grid',
+    rows:['Purchase agreement', 'Amendments and waivers', 'MLS listing', 'Deposit receipt', 'Builder agreement', 'Appraisal', 'Mortgage statement',
+      'Payout statement', 'Status certificate', 'Home insurance', "Lawyer's details", 'Employment letter', 'Signed commitment'],
+    opts:['The client', 'The realtor', 'The lawyer', 'The lender', 'The builder', 'The employer', 'Someone else']},
+
+  /* ---------- Timing ---------- */
+  {id:'t1', s:'timing', t:'When do you usually ask for each paper?', h:'Please pick a time for each one. Leave any you are not sure about.', k:'grid',
+    rows:['Photo ID', 'Pay stub', 'Employment letter', 'Bank statements', 'NOA', 'Purchase agreement', 'Mortgage statement', 'Property tax bill', 'Home insurance', 'Void cheque'],
+    opts:['At the start', 'Before sending to the lender', 'After approval', 'Before closing']},
+  {id:'t2', s:'timing', t:'When is each paper too old to use?', h:'After this, you ask the client for a new one. Leave any you are not sure about.', k:'grid',
+    rows:['Pay stub', 'Employment letter', 'Bank statements', 'NOA', 'Mortgage statement', 'Property tax bill', 'Photo ID'],
+    opts:['30 days', '60 days', '90 days', '6 months', '1 year', 'When it expires', 'Never']},
+
+  /* ---------- Final ---------- */
+  {id:'f1', s:'final', t:'Is there any kind of client or paper we have not asked about?', h:'For example, a type of deal you do that was not listed, or a paper you always need that Penny should know about.', k:'area'}
+];
+
+/* ================= BUILD ================= */
+var main = document.getElementById('main');
+var storeKey = 'vela-penny-checklist-' + CONFIG.clientName;
+var byId = {}, optShow = [];
+QUESTIONS.forEach(function(q){ byId[q.id] = q; });
+
+function el(html){ var d = document.createElement('section'); d.className = 'step'; d.innerHTML = html; return d; }
+
+main.appendChild(el(
+  '<div class="cover"><div class="kicker">Penny · Document Checklist</div>' +
+  '<h1>Which papers does each client need?</h1>' +
+  '<p>Penny builds a checklist for every deal. Your answers tell her which papers to expect for each kind of client. It takes about fifteen minutes. You only see questions for the situations you pick, and you can skip anything you are not sure about.</p></div>'
+));
+
+SECTIONS.forEach(function(sec, si){
+  var inter = el('<div class="interstitial"><div class="big-no">' + String(si + 1).padStart(2, '0') + '</div><h2></h2><p class="hint"></p></div>');
+  inter.querySelector('h2').textContent = sec.t;
+  inter.querySelector('.hint').textContent = sec.i;
+  inter.dataset.secKey = sec.key;
+  main.appendChild(inter);
+
+  QUESTIONS.filter(function(q){ return q.s === sec.key; }).forEach(function(q){
+    var s = el('<div class="kicker"></div><h2></h2>' + (q.h ? '<p class="hint"></p>' : ''));
+    s.dataset.sec = sec.t; s.dataset.qid = q.id;
+    s.querySelector('h2').textContent = q.t;
+    if (q.h) s.querySelector('.hint').textContent = q.h;
+
+    if (q.k === 'dyn'){
+      var dw = document.createElement('div'); dw.className = 'choices'; dw.dataset.dyn = q.id;
+      s.appendChild(dw);
+    } else if (q.k === 'area'){
+      var f = document.createElement('textarea');
+      f.placeholder = 'Your answer'; f.dataset.ans = q.id;
+      s.appendChild(f);
+    } else if (q.k === 'grid'){
+      var grid = document.createElement('div'); grid.className = 'grid';
+      q.rows.forEach(function(r){
+        var row = document.createElement('div'); row.className = 'grid-row';
+        var dl = document.createElement('span'); dl.className = 'day'; dl.textContent = r;
+        var sel = document.createElement('select'); sel.dataset.ansGrid = q.id + '||' + r;
+        sel.setAttribute('aria-label', r);
+        ['Not sure'].concat(q.opts).forEach(function(v, vi){ var o = document.createElement('option'); o.value = vi ? v : ''; o.textContent = v; sel.appendChild(o); });
+        row.appendChild(dl); row.appendChild(sel); grid.appendChild(row);
+      });
+      s.appendChild(grid);
+    } else {
+      var wrap = document.createElement('div'); wrap.className = 'choices';
+      var inputType = q.k === 'radio' ? 'radio' : 'checkbox';
+      q.o.forEach(function(opt, oi){
+        var lab = document.createElement('label'); lab.className = 'choice';
+        var inp = document.createElement('input'); inp.type = inputType; inp.name = q.id; inp.value = opt.l;
+        if (opt.pick || opt.link) inp.dataset.follow = q.id + '-f' + oi;
+        lab.appendChild(inp); lab.appendChild(document.createTextNode(opt.l));
+        wrap.appendChild(lab);
+        if (opt.show) optShow.push({lab:lab, inp:inp, fn:opt.show});
+        /* the follow-up (how far back, how many, or a few words) opens directly beneath its own option */
+        if (opt.pick || opt.link){
+          var fw = document.createElement('div'); fw.className = 'follow'; fw.id = q.id + '-f' + oi;
+          var fl = document.createElement('label'); fl.textContent = opt.pick ? opt.pick.label : opt.link;
+          fw.appendChild(fl);
+          if (opt.pick){
+            var row = document.createElement('div'); row.className = 'picks';
+            opt.pick.o.forEach(function(v){
+              var pl = document.createElement('label'); pl.className = 'pk';
+              var pi = document.createElement('input'); pi.type = 'radio'; pi.name = q.id + '||' + opt.l + '||how'; pi.value = v;
+              var sp = document.createElement('span'); sp.textContent = v;
+              pl.appendChild(pi); pl.appendChild(sp); row.appendChild(pl);
+            });
+            fw.appendChild(row);
+          } else {
+            var ti = document.createElement('input'); ti.type = 'text'; ti.placeholder = 'Your answer';
+            ti.dataset.ansLink = q.id + '||' + opt.l;
+            fw.appendChild(ti);
+          }
+          wrap.appendChild(fw);
+        }
+      });
+      if (q.other){
+        var lab2 = document.createElement('label'); lab2.className = 'choice';
+        var inp2 = document.createElement('input'); inp2.type = inputType; inp2.name = q.id; inp2.value = 'Other';
+        inp2.className = 'other-toggle';
+        lab2.appendChild(inp2); lab2.appendChild(document.createTextNode('Other'));
+        wrap.appendChild(lab2);
+        var ow = document.createElement('div'); ow.className = 'other-field';
+        ow.innerHTML = '<label></label><input type="text" placeholder="Your answer">';
+        ow.querySelector('label').textContent = q.otherLabel || 'If other, please describe';
+        ow.querySelector('input').dataset.ansOther = q.id;
+        wrap.appendChild(ow);
+      }
+      s.appendChild(wrap);
+    }
+    main.appendChild(s);
+  });
+});
+
+main.appendChild(el(
+  '<div class="interstitial"><div class="big-no">✓</div>' +
+  '<h2>Thank you. That was the final question.</h2>' +
+  '<p class="hint">Please press Send and your answers will go directly to Fahad. Nothing changes in Penny until you have both agreed it.</p>' +
+  '<p class="send-note" id="sendnote"></p><textarea id="copyOut" readonly aria-label="Your answers as text"></textarea></div>'
+));
+
+/* ================= WHICH STEPS SHOW ================= */
+var steps = [].slice.call(document.querySelectorAll('.step')), i = 0;
+function qVisible(q){ return !q.show || q.show(); }
+function stepVisible(s){
+  if (s.dataset.qid) return qVisible(byId[s.dataset.qid]);
+  if (s.dataset.secKey) return QUESTIONS.some(function(q){ return q.s === s.dataset.secKey && qVisible(q); });
+  return true;
+}
+function visibleSteps(){ return steps.filter(stepVisible); }
+function syncOptions(){
+  optShow.forEach(function(x){
+    var on = x.fn();
+    x.lab.classList.toggle('off', !on);
+    var fw = x.inp.dataset.follow && document.getElementById(x.inp.dataset.follow);
+    if (fw) fw.classList.toggle('show', on && x.inp.checked);
+  });
+}
+
+/* ================= STEPPER ================= */
+var back = document.getElementById('back'), next = document.getElementById('next'),
+    fill = document.getElementById('fill'), secname = document.getElementById('secname'), pct = document.getElementById('pct');
+
+var lastShown = -1;
+/* The nice-to-have list = every paper ticked on the screens he will see, once each. */
+var NOT_PAPERS = ['d0', 'pp0', 'in0', 'oh0', 'dp0', 'pr0', 'b2', 'd6', 'd12', 'pp4', 'in16', 'nh'];
+function tickedPapers(){
+  var seen = {}, list = [];
+  visibleSteps().forEach(function(st){
+    var qid = st.dataset.qid;
+    if (!qid || NOT_PAPERS.indexOf(qid) !== -1) return;
+    [].slice.call(st.querySelectorAll('.choice:not(.off) input:checked')).forEach(function(inp){
+      if (inp.value === 'Other' || seen[inp.value]) return;
+      seen[inp.value] = 1; list.push(inp.value);
+    });
+  });
+  return list;
+}
+var dynMem = {};
+function buildDyn(){
+  [].slice.call(document.querySelectorAll('[data-dyn]')).forEach(function(dw){
+    var qid = dw.dataset.dyn, items = tickedPapers();
+    var sig = items.join('|');
+    if (dw.dataset.sig === sig) return;
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(storeKey) || '{}'); } catch(e){}
+    /* remember every answer given here, so a paper that leaves and comes back keeps it */
+    var mem = (dynMem[qid] = dynMem[qid] || {});
+    [].slice.call(dw.querySelectorAll('input')).forEach(function(x){ mem[x.value] = x.checked; });
+    dw.innerHTML = ''; dw.dataset.sig = sig;
+    if (!items.length){
+      var note = document.createElement('p'); note.className = 'hint';
+      note.textContent = 'Once you tick papers in the earlier questions, they will appear here. You can press Back to add them.';
+      dw.appendChild(note); return;
+    }
+    items.concat(['None, I wait for every one of them']).forEach(function(v){
+      var lab = document.createElement('label'); lab.className = 'choice';
+      var inp = document.createElement('input'); inp.type = 'checkbox'; inp.name = qid; inp.value = v;
+      inp.checked = v in mem ? mem[v] : !!saved['c:' + qid + '::' + v];
+      lab.classList.toggle('picked', inp.checked);
+      lab.appendChild(inp); lab.appendChild(document.createTextNode(v)); dw.appendChild(lab);
+    });
+  });
+}
+
+function render(){
+  syncOptions();
+  buildDyn();
+  var vis = visibleSteps();
+  var cur = steps[i];
+  var pos = vis.indexOf(cur);
+  steps.forEach(function(s, k){ s.classList.toggle('active', k === i); });
+  var qsteps = vis.filter(function(s){ return s.dataset.qid; });
+  qsteps.forEach(function(s, n){ s.querySelector('.kicker').textContent = 'Question ' + (n + 1) + ' of ' + qsteps.length; });
+  back.disabled = pos <= 0;
+  next.textContent = pos === 0 ? 'Start' : (pos === vis.length - 1 ? 'Send Your Answers' : 'Next');
+  var pc = Math.round(pos / (vis.length - 1) * 100);
+  fill.style.width = pc + '%';
+  pct.textContent = pos === 0 ? '' : (pc + '%');
+  secname.textContent = cur.dataset.sec || (pos === 0 ? 'Welcome' : (pos === vis.length - 1 ? 'Done' : (cur.querySelector('h2') || {}).textContent || ''));
+  /* back to the top only when the screen changes, never when an answer is ticked */
+  if (lastShown !== i){ window.scrollTo(0, 0); lastShown = i; }
+  try { localStorage.setItem(storeKey + '-step', i); } catch(e){}
+}
+function move(dir){
+  var k = i + dir;
+  while (k >= 0 && k < steps.length && !stepVisible(steps[k])) k += dir;
+  if (k >= 0 && k < steps.length){ i = k; render(); }
+}
+next.onclick = function(){ var vis = visibleSteps(); if (vis.indexOf(steps[i]) === vis.length - 1) { submit(); return; } move(1); };
+back.onclick = function(){ move(-1); };
+
+document.addEventListener('change', function(e){
+  var c = e.target.closest('.choice');
+  if (c){
+    if (e.target.type === 'radio') c.parentElement.querySelectorAll('.choice').forEach(function(x){ x.classList.remove('picked'); });
+    c.classList.toggle('picked', e.target.checked);
+    [].slice.call(c.parentElement.querySelectorAll('input[data-follow]')).forEach(function(inp){
+      var fw = document.getElementById(inp.dataset.follow);
+      if (fw) fw.classList.toggle('show', inp.checked);
+    });
+    if (e.target.dataset.follow && e.target.checked){
+      var fti = document.getElementById(e.target.dataset.follow).querySelector('input[type=text]');
+      if (fti) fti.focus({preventScroll:true});
+    }
+    if (e.target.classList.contains('other-toggle')){
+      var of = e.target.closest('.step').querySelector('.other-field');
+      if (of){ of.classList.toggle('show', e.target.checked); if (e.target.checked) of.querySelector('input').focus({preventScroll:true}); }
+    }
+    render();
+  }
+  save();
+});
+document.addEventListener('input', save);
+
+/* ================= SAVE / RESTORE ================= */
+function fieldKey(f){
+  if (f.dataset.ans) return 'a:' + f.dataset.ans;
+  if (f.dataset.ansOther) return 'o:' + f.dataset.ansOther;
+  if (f.dataset.ansLink) return 'l:' + f.dataset.ansLink;
+  if (f.dataset.ansGrid) return 'g:' + f.dataset.ansGrid;
+  if (f.name) return 'c:' + f.name + '::' + f.value;
+  return null;
+}
+function save(){
+  try {
+    var vals = {};
+    [].slice.call(document.querySelectorAll('input[type=text],textarea,select')).forEach(function(f){
+      var k = fieldKey(f); if (k && f.value) vals[k] = f.value;
+    });
+    [].slice.call(document.querySelectorAll('input[type=checkbox],input[type=radio]')).forEach(function(f){
+      var k = fieldKey(f); if (k && f.checked) vals[k] = 1;
+    });
+    localStorage.setItem(storeKey, JSON.stringify(vals));
+  } catch(e){}
+}
+function restore(){
+  try {
+    var vals = JSON.parse(localStorage.getItem(storeKey) || '{}');
+    [].slice.call(document.querySelectorAll('input[type=text],textarea,select')).forEach(function(f){
+      var k = fieldKey(f); if (k && vals[k]) f.value = vals[k];
+    });
+    [].slice.call(document.querySelectorAll('input[type=checkbox],input[type=radio]')).forEach(function(f){
+      var k = fieldKey(f);
+      if (k && vals[k]){ f.checked = true; f.dispatchEvent(new Event('change', {bubbles:true})); }
+    });
+    var st = parseInt(localStorage.getItem(storeKey + '-step') || '0', 10);
+    if (st > 0 && st < steps.length - 1 && stepVisible(steps[st])) i = st;
+  } catch(e){}
+}
+
+/* ================= ANSWERS ================= */
+function collect(){
+  var out = {}, n = 0;
+  visibleSteps().forEach(function(s){
+    var qid = s.dataset.qid; if (!qid) return;
+    var q = byId[qid]; n++;
+    var key = 'Q' + n + '. ' + q.t, parts = [];
+    var free = s.querySelector('[data-ans]');
+    if (free && free.value.trim()) parts.push(free.value.trim());
+    [].slice.call(s.querySelectorAll('select[data-ans-grid]')).forEach(function(sel){
+      if (sel.value) parts.push(sel.dataset.ansGrid.split('||')[1] + ': ' + sel.value);
+    });
+    [].slice.call(s.querySelectorAll('.choice:not(.off) input:checked')).forEach(function(inp){
+      if (inp.value === 'Other'){
+        var o = s.querySelector('[data-ans-other]');
+        parts.push('Other' + (o && o.value.trim() ? ' (' + o.value.trim() + ')' : ''));
+        return;
+      }
+      var how = s.querySelector('input[name="' + (qid + '||' + inp.value + '||how').replace(/"/g, '\\"') + '"]:checked');
+      var words = s.querySelector('input[data-ans-link="' + (qid + '||' + inp.value).replace(/"/g, '\\"') + '"]');
+      parts.push(inp.value + (how ? ' (' + how.value + ')' : '') + (words && words.value.trim() ? ': ' + words.value.trim() : ''));
+    });
+    out[key] = parts.length ? parts.join(' ; ') : '(skipped)';
+  });
+  return out;
+}
+function asText(payload){
+  return Object.keys(payload).map(function(k){ return k + '\n  ' + payload[k].split(' ; ').join('\n  '); }).join('\n\n');
+}
+
+/* ================= SUBMIT ================= */
+var submitArmed = false;
+function showCopy(payload){
+  var box = document.getElementById('copyOut');
+  box.value = 'PENNY CHECKLIST: PUNEET\'S ANSWERS\n\n' + asText(payload);
+  box.style.display = 'block';
+}
+function submit(){
+  var note = document.getElementById('sendnote');
+  var payload = collect();
+  var total = Object.keys(payload).length;
+  var answered = Object.keys(payload).filter(function(k){ return payload[k] !== '(skipped)'; }).length;
+  if (answered < 5 && !submitArmed){
+    submitArmed = true;
+    note.textContent = 'You have answered ' + answered + ' of ' + total + ' questions. If that is what you intended, please press Send Your Answers again.';
+    note.classList.add('show');
+    return;
+  }
+  next.disabled = true; next.textContent = 'Sending…';
+  var body = {}; Object.keys(payload).forEach(function(k){ body[k] = payload[k]; });
+  body._subject = CONFIG.subject; body._template = 'box'; body._captcha = 'false';
+  fetch('https://formsubmit.co/ajax/' + CONFIG.emailUser + '@' + CONFIG.emailDomain, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    body: JSON.stringify(body)
+  }).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(){
+    document.querySelector('.step.active h2').textContent = 'Your answers have been sent. Thank you.';
+    document.querySelector('.step.active .hint').textContent = 'Fahad has received your answers. Nothing changes in Penny until you have both agreed it.';
+    next.style.display = 'none'; back.style.display = 'none';
+    note.classList.remove('show');
+  })
+  .catch(function(){
+    next.disabled = false; next.textContent = 'Send Your Answers';
+    note.textContent = 'The send did not go through. Your answers are below: please copy them and send them to Fahad by WhatsApp or email.';
+    note.classList.add('show');
+    showCopy(payload);
+  });
+}
+
+restore();
+render();
+</script>
+</body>
+</html>
