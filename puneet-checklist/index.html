@@ -614,9 +614,9 @@ function submit(){
   next.disabled = true; next.textContent = 'Sending…';
   var body = {}; Object.keys(payload).forEach(function(k){ body[k] = payload[k]; });
   body._subject = CONFIG.subject; body._template = 'box'; body._captcha = 'false';
-  /* give up after 20 seconds, so a slow email service never leaves him stuck on "Sending…" */
+  /* stop waiting after 45 seconds, so a slow email service never leaves him stuck on "Sending…" (it can be slow and still deliver) */
   var ctl = window.AbortController ? new AbortController() : null;
-  var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 20000);
+  var timer = setTimeout(function(){ if (ctl) ctl.abort(); }, 45000);
   fetch('https://formsubmit.co/ajax/' + CONFIG.emailUser + '@' + CONFIG.emailDomain, {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -632,7 +632,7 @@ function submit(){
   .catch(function(){
     clearTimeout(timer);
     next.disabled = false; next.textContent = 'Send Your Answers';
-    note.textContent = 'The send did not go through. Your answers are below: please copy them and send them to Fahad by WhatsApp or email.';
+    note.textContent = 'Sending is taking longer than usual, so your answers may still arrive. To be safe, please copy them below and send them to Fahad by WhatsApp or email.';
     note.classList.add('show');
     showCopy(payload);
   });
